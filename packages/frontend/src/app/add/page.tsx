@@ -14,13 +14,14 @@ import { useRouter } from 'next/navigation'
 import { writeSQL } from '@/app/hooks/writeSQL'
 
 export default function Page() {
-  const [value, setValue] = useState({ title: '', content: '' })
+  const [title, setTitle] = useState('')
+  const [content, setContent] = useState('')
   const router = useRouter()
 
   const handleSubmit = async () => {
     try {
       // console.log(value)
-      await writeSQL(value)
+      await writeSQL({ title, content })
       router.push('/')
     } catch {
       alert('送信失敗')
@@ -36,20 +37,16 @@ export default function Page() {
         <TextInput
           label='タイトル'
           placeholder='テキストを入力'
-          value={value.title}
+          value={title}
           maxLength={20}
-          onChange={(event) =>
-            setValue({ ...value, title: event.currentTarget.value })
-          }
+          onChange={(event) => setTitle(event.currentTarget.value)}
         />
         <TextInput
           label='内容'
           placeholder='テキストを入力'
-          value={value.content}
+          value={content}
           maxLength={200}
-          onChange={(event) =>
-            setValue({ ...value, content: event.currentTarget.value })
-          }
+          onChange={(event) => setContent(event.currentTarget.value)}
         />
 
         <Group gap='sm'>
