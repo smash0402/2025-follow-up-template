@@ -1,12 +1,15 @@
 import Fastify from 'fastify'
-import { fastifyCors } from '@fastify/cors'
+import cors from '@fastify/cors'
 import { todoController } from '@/controller/todoController'
 
 const fastify = Fastify({
   logger: true
 })
 
-fastify.register(fastifyCors, { origin: '*' })
+await fastify.register(cors, {
+  origin: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE']
+})
 
 fastify.register(todoController)
 

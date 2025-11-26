@@ -3,6 +3,7 @@
 import { Button, Table, Title, Container } from '@mantine/core'
 import { useTodos } from '@/app/hooks/useTodo'
 import Link from 'next/link'
+import { deleteSQL } from '@/app/hooks/deleteSQL'
 
 export default function Page() {
   const { todos, error, isLoading } = useTodos()
@@ -19,6 +20,14 @@ export default function Page() {
     const mm = String(date.getMinutes()).padStart(2, '0')
     const ss = String(date.getSeconds()).padStart(2, '0')
     return `${yyyy}-${MM}-${dd} ${HH}:${mm}:${ss}`
+  }
+
+  const handleDelete = async (no: number) => {
+    const ok = confirm(`No.${no} を削除しますか？`)
+    if (!ok) return
+
+    await deleteSQL(no)
+    window.location.reload()
   }
 
   return (
@@ -52,10 +61,12 @@ export default function Page() {
               <Table.Td>{formatDateTime(todo.createdAt)}</Table.Td>
               <Table.Td>{formatDateTime(todo.updatedAt)}</Table.Td>
               <Table.Td>
-                <Link href='/edit'>
+                <Link href={`/edit?no=${todo.no}`}>
                   <Button variant='filled'>編集</Button>
                 </Link>
-                <Button variant='filled'>削除</Button>
+                <Button variant='filled' onClick={() => handleDelete(todo.no)}>
+                  削除
+                </Button>
               </Table.Td>
             </Table.Tr>
           ))}

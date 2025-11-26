@@ -19,6 +19,10 @@ export default function Page() {
   const router = useRouter()
 
   const handleSubmit = async () => {
+    if (!title.trim()) {
+      alert('タイトルを入力してください。')
+      return
+    }
     try {
       // console.log(value)
       await writeSQL({ title, content })

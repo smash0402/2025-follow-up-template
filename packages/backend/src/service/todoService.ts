@@ -31,3 +31,33 @@ export const addTodo = async (title: string, content: string) => {
     throw error
   }
 }
+
+export const updateTodo = async (
+  no: number,
+  title: string,
+  content: string
+) => {
+  try {
+    const [result] = await pool.query<ResultSetHeader>(
+      'UPDATE todo SET title = ?, content = ?, updated_at = NOW() WHERE no = ?',
+      [title, content, no]
+    )
+    return result
+  } catch (error) {
+    console.error('Error updating todo:', error)
+    throw error
+  }
+}
+
+export const deleteTodo = async (no: number) => {
+  try {
+    const [result] = await pool.query<ResultSetHeader>(
+      'DELETE FROM todo WHERE no = ?',
+      [no]
+    )
+    return result
+  } catch (error) {
+    console.error('Error deleting todo:', error)
+    throw error
+  }
+}
