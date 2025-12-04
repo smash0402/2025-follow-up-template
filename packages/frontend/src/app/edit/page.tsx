@@ -12,7 +12,7 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react' //状態確認
 import { useSearchParams } from 'next/navigation'
 import { useRouter } from 'next/navigation'
-import { updateSQL } from '@/app/hooks/updateSQL'
+import { updateSQL } from '@/app/apis/updateSQL'
 
 type Todo = {
   no: number

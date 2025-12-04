@@ -3,7 +3,7 @@
 import { Button, Table, Title, Container } from '@mantine/core'
 import { useTodos } from '@/app/hooks/useTodo'
 import Link from 'next/link'
-import { deleteSQL } from '@/app/hooks/deleteSQL'
+import { deleteSQL } from '@/app/apis/deleteSQL'
 
 export default function Page() {
   const { todos, error, isLoading } = useTodos()
@@ -23,7 +23,7 @@ export default function Page() {
   }
 
   const handleDelete = async (no: number) => {
-    const ok = confirm(`No.${no} を削除しますか？`)
+    const ok = confirm(`No.${no} のTodoリストを削除しますか？`)
     if (!ok) return
 
     await deleteSQL(no)

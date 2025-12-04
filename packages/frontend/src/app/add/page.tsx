@@ -11,7 +11,7 @@ import {
 import Link from 'next/link'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { writeSQL } from '@/app/hooks/writeSQL'
+import { writeSQL } from '@/app/apis/writeSQL'
 
 export default function Page() {
   const [title, setTitle] = useState('')
