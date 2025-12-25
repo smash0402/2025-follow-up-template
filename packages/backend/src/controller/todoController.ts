@@ -1,6 +1,8 @@
 import type { FastifyPluginAsync, FastifyInstance } from 'fastify'
+import type { AddUser, EditUser } from '@/types'
 import {
   getAllTodos,
+  getTodoNo,
   addTodo,
   updateTodo,
   deleteTodo
@@ -16,14 +18,11 @@ export const todoController: FastifyPluginAsync = async (
   })
 
   // 登録（POST）
-  fastify.post('/todo', async (request, reply) => {
+  fastify.post<{ Body: AddUser }>('/todo', async (request, reply) => {
     console.log('request.body:', request.body)
     try {
-      const { title, content } = request.body as {
-        title: string
-        content: string
-      }
-      const result = await addTodo(title, content)
+      const body = request.body
+      const result = await addTodo(body)
       reply.status(201).send({ message: 'Todo added', result })
     } catch (error) {
       console.error('POST /todo error:', error)
@@ -32,27 +31,34 @@ export const todoController: FastifyPluginAsync = async (
   })
 
   //番号限定(編集ページ用)
-  fastify.get('/todo/:no', async (request, reply) => {
-    try {
-      const { no } = request.params as { no: string }
-      const todos = await getAllTodos()
-      const todo = todos.find((todo) => todo.no === Number(no))
-      if (!todo) return reply.status(404).send({ message: 'Todo not found' })
-      reply.status(200).send(todo)
-    } catch (error) {
-      console.error('GET /todo/:no error:', error)
-      reply.status(500).send({ message: 'Failed to fetch todo' })
-    }
-  })
-
-  fastify.put('/todo/:no', async (request, reply) => {
-    try {
-      const { no } = request.params as { no: string }
-      const { title, content } = request.body as {
-        title: string
-        content: string
+  fastify.get<{ Params: { no: number } }>(
+    '/todo/:no',
+    async (request, reply) => {
+      try {
+        const no = Number(request.params.no)
+        const todo = await getTodoNo(no)
+        if (!todo) return reply.status(404).send({ message: 'Todo not found' })
+        reply.status(200).send(todo)
+      } catch (error) {
+        console.error('GET /todo/:no error:', error)
+        reply.status(500).send({ message: 'Failed to fetch todo' })
       }
-      const result = await updateTodo(Number(no), title, content)
+    }
+  )
+
+  fastify.put<{
+    Params: { no: number }
+    Body: Omit<EditUser, 'no'>
+  }>('/todo/:no', async (request, reply) => {
+    try {
+      const no = Number(request.params.no)
+      const check: EditUser = {
+        no,
+        title: request.body.title,
+        content: request.body.content
+      }
+
+      const result = await updateTodo(check)
       reply.status(200).send({ message: 'Todo updated', result })
     } catch (error) {
       console.error('PUT /todo/:no error:', error)

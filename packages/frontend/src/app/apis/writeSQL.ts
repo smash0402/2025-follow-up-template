@@ -1,4 +1,6 @@
-export async function writeSQL(data: { title: string; content: string }) {
+import type { AddUser } from '@shared/types'
+
+export async function writeSQL(data: AddUser) {
   try {
     const write = await fetch('http://localhost:8000/todo', {
       method: 'POST',

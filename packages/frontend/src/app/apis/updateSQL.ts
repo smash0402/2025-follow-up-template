@@ -1,8 +1,6 @@
-export async function updateSQL(data: {
-  no: number
-  title: string
-  content: string
-}) {
+import type { EditUser } from '@shared/types'
+
+export async function updateSQL(data: EditUser) {
   try {
     const res = await fetch(`http://localhost:8000/todo/${data.no}`, {
       method: 'PUT',

@@ -13,16 +13,11 @@ import { useState, useEffect } from 'react' //状態確認
 import { useSearchParams } from 'next/navigation'
 import { useRouter } from 'next/navigation'
 import { updateSQL } from '@/app/apis/updateSQL'
-
-type Todo = {
-  no: number
-  title: string
-  content: string
-}
+import type { User, EditUser } from '@shared/types'
 
 export default function Page() {
-  const [title, setTitle] = useState('')
-  const [content, setContent] = useState('')
+  const [title, setTitle] = useState<EditUser['title']>('')
+  const [content, setContent] = useState<EditUser['content']>('')
   const searchParams = useSearchParams()
   const no = Number(searchParams.get('no'))
   const router = useRouter()
@@ -33,7 +28,7 @@ export default function Page() {
       try {
         const res = await fetch(`http://localhost:8000/todo/${no}`)
         if (!res.ok) throw new Error('Failed to fetch todo')
-        const todo: Todo = await res.json()
+        const todo: User = await res.json()
         setTitle(todo.title)
         setContent(todo.content)
       } catch (error) {
@@ -48,9 +43,14 @@ export default function Page() {
       alert('タイトルを入力してください。')
       return
     }
+    const check: EditUser = {
+      no,
+      title,
+      content
+    }
     try {
       // console.log(value)
-      await updateSQL({ no, title, content })
+      await updateSQL(check)
       router.push('/')
     } catch {
       alert('送信失敗')

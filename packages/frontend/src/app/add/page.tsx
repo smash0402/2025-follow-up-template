@@ -12,10 +12,11 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { writeSQL } from '@/app/apis/writeSQL'
+import type { AddUser } from '@shared/types'
 
 export default function Page() {
-  const [title, setTitle] = useState('')
-  const [content, setContent] = useState('')
+  const [title, setTitle] = useState<AddUser['title']>('')
+  const [content, setContent] = useState<AddUser['content']>('')
   const router = useRouter()
 
   const handleSubmit = async () => {
@@ -23,9 +24,15 @@ export default function Page() {
       alert('タイトルを入力してください。')
       return
     }
+
+    const check: AddUser = {
+      title,
+      content
+    }
+
     try {
       // console.log(value)
-      await writeSQL({ title, content })
+      await writeSQL(check)
       router.push('/')
     } catch {
       alert('送信失敗')

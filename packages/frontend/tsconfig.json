@@ -16,7 +16,8 @@
     "allowJs": true,
     "incremental": true,
     "paths": {
-      "@/*": ["./src/*", "../shared/*", "./src/app/*"]
+      "@/*": ["./src/*", "./src/app/*"],
+      "@shared/*": ["../shared/*"]
     }
   },
   "include": [
