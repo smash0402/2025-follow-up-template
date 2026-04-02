@@ -11,12 +11,12 @@ import {
 import Link from 'next/link'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { addTodo } from '@/app/apis/addTodo'
-import type { AddTodo } from '@shared/types'
+import { writeSQL } from '@/app/apis/writeSQL'
+import type { AddUser } from '@shared/types'
 
 export default function Page() {
-  const [title, setTitle] = useState<AddTodo['title']>('')
-  const [content, setContent] = useState<AddTodo['content']>('')
+  const [title, setTitle] = useState<AddUser['title']>('')
+  const [content, setContent] = useState<AddUser['content']>('')
   const router = useRouter()
 
   const handleSubmit = async () => {
@@ -25,13 +25,14 @@ export default function Page() {
       return
     }
 
-    const check: AddTodo = {
+    const check: AddUser = {
       title,
       content
     }
 
     try {
-      await addTodo(check)
+      // console.log(value)
+      await writeSQL(check)
       router.push('/')
     } catch {
       alert('送信失敗')

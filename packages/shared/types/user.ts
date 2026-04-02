@@ -1,7 +1,7 @@
 export type User = {
-  no: number
+  no: string
   title: string
   content: string
-  createdAt: string
-  updatedAt: string
+  created_at: string
+  updated_at: string
 }

@@ -12,7 +12,6 @@ export function useTodos(): {
   todos: Todo[]
   error: Error | undefined
   isLoading: boolean
-  mutate: any
 } {
   const fetcher = async (url: string): Promise<Todo[]> => {
     const res = await fetch(url)
@@ -24,11 +23,11 @@ export function useTodos(): {
     }
     return res.json()
   }
-  const API_URL = process.env.NEXT_PUBLIC_API_URL
-  const { data, error, isLoading, mutate } = useSWR<Todo[], Error>(
-    `${API_URL}/todo`,
+
+  const { data, error, isLoading } = useSWR<Todo[], Error>(
+    'http://localhost:8000/todo',
     fetcher
   )
 
-  return { todos: data || [], error, isLoading, mutate }
+  return { todos: data || [], error, isLoading }
 }

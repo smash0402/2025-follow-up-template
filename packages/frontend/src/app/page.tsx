@@ -3,13 +3,13 @@
 import { Button, Table, Title, Container } from '@mantine/core'
 import { useTodos } from '@/app/hooks/useTodo'
 import Link from 'next/link'
-import { deleteTodo } from '@/app/apis/deleteTodo'
+import { deleteSQL } from '@/app/apis/deleteSQL'
 
 export default function Page() {
-  const { todos, error, isLoading, mutate } = useTodos()
+  const { todos, error, isLoading } = useTodos()
 
   if (isLoading) return <div>Loading...</div>
-  if (error) return <div>Error fetching todos: {error.message}</div>
+  if (error) return <div>Error fetching users: {error.message}</div>
 
   const formatDateTime = (dateString: string): string => {
     const date = new Date(dateString)
@@ -26,8 +26,8 @@ export default function Page() {
     const ok = confirm(`No.${no} のTodoリストを削除しますか？`)
     if (!ok) return
 
-    await deleteTodo(no)
-    mutate()
+    await deleteSQL(no)
+    window.location.reload()
   }
 
   return (
