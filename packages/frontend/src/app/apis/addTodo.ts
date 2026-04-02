@@ -1,8 +1,9 @@
-import type { AddUser } from '@shared/types'
+import type { AddTodo } from '@shared/types'
 
-export async function writeSQL(data: AddUser) {
+export async function addTodo(data: AddTodo) {
   try {
-    const write = await fetch('http://localhost:8000/todo', {
+    const API_URL = process.env.NEXT_PUBLIC_API_URL
+    const write = await fetch(`${API_URL}/todo`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -12,7 +13,7 @@ export async function writeSQL(data: AddUser) {
     if (!write.ok) {
       const status = write.status
       const body = await write.text()
-      const message = `failed to fetch users. error(status: ${status}, body: ${body}})`
+      const message = `failed to fetch todo. error(status: ${status}, body: ${body}})`
       throw new Error(message)
     }
     return write.json()
