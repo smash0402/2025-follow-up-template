@@ -1,8 +1,9 @@
-import type { EditUser } from '@shared/types'
+import type { EditTodo } from '@shared/types'
 
-export async function updateSQL(data: EditUser) {
+export async function updateTodo(data: EditTodo) {
   try {
-    const res = await fetch(`http://localhost:8000/todo/${data.no}`, {
+    const API_URL = process.env.NEXT_PUBLIC_API_URL
+    const res = await fetch(`${API_URL}/todo/${data.no}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
