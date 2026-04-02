@@ -6,7 +6,8 @@ import {
   Title,
   Container,
   TextInput,
-  Group
+  Group,
+  Select
 } from '@mantine/core'
 import Link from 'next/link'
 import { useState } from 'react'
@@ -17,6 +18,7 @@ import type { AddTodo } from '@shared/types'
 export default function Page() {
   const [title, setTitle] = useState<AddTodo['title']>('')
   const [content, setContent] = useState<AddTodo['content']>('')
+  const [priority, setPriority] = useState<AddTodo['priority']>('低')
   const router = useRouter()
 
   const handleSubmit = async () => {
@@ -25,9 +27,15 @@ export default function Page() {
       return
     }
 
+    if (!priority.trim()) {
+      alert('タスク優先度を選択してください')
+      return
+    }
+
     const check: AddTodo = {
       title,
-      content
+      content,
+      priority
     }
 
     try {
@@ -57,6 +65,16 @@ export default function Page() {
           value={content}
           maxLength={200}
           onChange={(event) => setContent(event.currentTarget.value)}
+        />
+
+        <Select
+          label='タスク優先度'
+          placeholder='優先度を選んでください'
+          data={['低', '中', '高']}
+          value={priority}
+          onChange={(value) => {
+            if (value) setPriority(value as AddTodo['priority'])
+          }}
         />
 
         <Group gap='sm'>

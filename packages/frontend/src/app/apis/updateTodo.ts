@@ -8,7 +8,8 @@ export async function updateTodo(data: EditTodo) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         title: data.title,
-        content: data.content
+        content: data.content,
+        priority: data.priority
       })
     })
 

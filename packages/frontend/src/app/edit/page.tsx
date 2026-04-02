@@ -6,7 +6,8 @@ import {
   Title,
   Container,
   TextInput,
-  Group
+  Group,
+  Select
 } from '@mantine/core'
 import Link from 'next/link'
 import { useState, useEffect } from 'react' //状態確認
@@ -18,6 +19,7 @@ import type { User, EditTodo } from '@shared/types'
 export default function Page() {
   const [title, setTitle] = useState<EditTodo['title']>('')
   const [content, setContent] = useState<EditTodo['content']>('')
+  const [priority, setPriority] = useState<EditTodo['priority']>('低')
   const searchParams = useSearchParams()
   const no = Number(searchParams.get('no'))
   const router = useRouter()
@@ -32,6 +34,7 @@ export default function Page() {
         const todo: User = await res.json()
         setTitle(todo.title)
         setContent(todo.content)
+        setPriority(todo.priority)
       } catch (error) {
         console.error(error)
       }
@@ -47,7 +50,8 @@ export default function Page() {
     const check: EditTodo = {
       no,
       title,
-      content
+      content,
+      priority
     }
     try {
       await updateTodo(check)
@@ -77,6 +81,16 @@ export default function Page() {
           value={content}
           maxLength={200}
           onChange={(event) => setContent(event.currentTarget.value)}
+        />
+
+        <Select
+          label='タスク優先度'
+          placeholder='優先度を選んでください'
+          data={['低', '中', '高']}
+          value={priority}
+          onChange={(value) => {
+            if (value) setPriority(value as EditTodo['priority'])
+          }}
         />
 
         <Group gap='sm'>

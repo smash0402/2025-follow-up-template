@@ -19,6 +19,7 @@ export const todoController: FastifyPluginAsync = async (
 
   // 登録（POST）
   fastify.post<{ Body: AddTodo }>('/todo', async (request, reply) => {
+    console.log('aaaaaaa')
     console.log('request.body:', request.body)
     try {
       const body = request.body
@@ -55,7 +56,8 @@ export const todoController: FastifyPluginAsync = async (
       const check: EditTodo = {
         no,
         title: request.body.title,
-        content: request.body.content
+        content: request.body.content,
+        priority: request.body.priority
       }
 
       const result = await updateTodo(check)

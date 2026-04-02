@@ -30,6 +30,12 @@ export default function Page() {
     mutate()
   }
 
+  const getColor = (priority: string) => {
+    if (priority === '高') return 'rgb(244, 164, 169)'
+    if (priority === '中') return 'rgb(255, 255, 188)'
+    if (priority === '低') return 'rgb(168, 238, 249)'
+  }
+
   return (
     <Container size='md' mt='xl'>
       <Title order={2} mb='md'>
@@ -50,16 +56,21 @@ export default function Page() {
             <Table.Th>内容</Table.Th>
             <Table.Th>作成日</Table.Th>
             <Table.Th>更新日</Table.Th>
+            <Table.Th>優先度</Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
           {todos?.map((todo) => (
-            <Table.Tr key={todo.no}>
+            <Table.Tr
+              key={todo.no}
+              style={{ backgroundColor: getColor(todo.priority) }}
+            >
               <Table.Td>{todo.no}</Table.Td>
               <Table.Td>{todo.title}</Table.Td>
               <Table.Td>{todo.content}</Table.Td>
               <Table.Td>{formatDateTime(todo.createdAt)}</Table.Td>
               <Table.Td>{formatDateTime(todo.updatedAt)}</Table.Td>
+              <Table.Td>{todo.priority}</Table.Td>
               <Table.Td>
                 <Link href={`/edit?no=${todo.no}`}>
                   <Button variant='filled'>編集</Button>

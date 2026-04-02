@@ -6,6 +6,7 @@ export type Todo = {
   content: string
   createdAt: string
   updatedAt: string
+  priority: string
 }
 
 export function useTodos(): {
