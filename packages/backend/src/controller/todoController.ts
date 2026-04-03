@@ -2,7 +2,7 @@ import type { FastifyPluginAsync, FastifyInstance } from 'fastify'
 import type { AddTodo, EditTodo } from '@/types'
 import {
   getAllTodos,
-  getTodoId,
+  getTodoById,
   addTodo,
   updateTodo,
   deleteTodo
@@ -34,13 +34,13 @@ export const todoController: FastifyPluginAsync = async (
     }
   })
 
-  //番号限定(編集ページ用)
+  //一件取得(GET)
   fastify.get<{ Params: { id: number } }>(
     '/todo/:id',
     async (request, reply) => {
       try {
-        const id = Number(request.params.id)
-        const todo = await getTodoId(id)
+        const id = request.params.id
+        const todo = await getTodoById(id)
         if (!todo) return reply.status(404).send({ message: 'Todo not found' })
         reply.status(200).send(todo)
       } catch (error) {
@@ -50,20 +50,21 @@ export const todoController: FastifyPluginAsync = async (
     }
   )
 
+  //Todoリスト編集
   fastify.put<{
     Params: { id: number }
     Body: Omit<EditTodo, 'id'>
   }>('/todo/:id', async (request, reply) => {
     try {
-      const id = Number(request.params.id)
-      const check: EditTodo = {
+      const id = request.params.id
+      const todo: EditTodo = {
         id,
         title: request.body.title,
         content: request.body.content,
         priority: request.body.priority
       }
 
-      const result = await updateTodo(check)
+      const result = await updateTodo(todo)
       reply.status(200).send({ message: 'Todo updated', result })
     } catch (error) {
       console.error('PUT /todo/:id error:', error)
@@ -71,19 +72,23 @@ export const todoController: FastifyPluginAsync = async (
     }
   })
 
-  fastify.delete('/todo/:id', async (request, reply) => {
-    try {
-      const { id } = request.params as { id: string }
-      const result = await deleteTodo(Number(id))
+  //Todoリスト削除(一件)
+  fastify.delete<{ Params: { id: number } }>(
+    '/todo/:id',
+    async (request, reply) => {
+      try {
+        const id = request.params.id
+        const result = await deleteTodo(id)
 
-      if (result.affectedRows === 0) {
-        return reply.status(404).send({ message: 'Todo not found' })
+        if (result.affectedRows === 0) {
+          return reply.status(404).send({ message: 'Todo not found' })
+        }
+
+        reply.status(200).send({ message: 'Todo deleted' })
+      } catch (error) {
+        console.error('DELETE /todo/:id error:', error)
+        reply.status(500).send({ message: 'Failed to delete todo' })
       }
-
-      reply.status(200).send({ message: 'Todo deleted' })
-    } catch (error) {
-      console.error('DELETE /todo/:id error:', error)
-      reply.status(500).send({ message: 'Failed to delete todo' })
     }
-  })
+  )
 }

@@ -21,7 +21,7 @@ export const getAllTodos = async () => {
   }
 }
 
-export const getTodoId = async (id: number) => {
+export const getTodoById = async (id: number) => {
   try {
     const [rows] = await pool.query<RowDataPacket[]>(
       'SELECT id, title, content, created_at, updated_at, priority FROM todo WHERE id = ?',
