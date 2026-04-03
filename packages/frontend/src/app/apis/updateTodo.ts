@@ -3,7 +3,7 @@ import type { EditTodo } from '@shared/types'
 export async function updateTodo(data: EditTodo) {
   try {
     const API_URL = process.env.NEXT_PUBLIC_API_URL
-    const res = await fetch(`${API_URL}/todo/${data.no}`, {
+    const res = await fetch(`${API_URL}/todo/${data.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

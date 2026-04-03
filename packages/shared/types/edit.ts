@@ -1,5 +1,5 @@
 export type EditTodo = {
-  no: number
+  id: number
   title: string
   content: string
   priority: '低' | '中' | '高'

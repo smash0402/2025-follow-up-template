@@ -22,11 +22,11 @@ export default function Page() {
     return `${yyyy}-${MM}-${dd} ${HH}:${mm}:${ss}`
   }
 
-  const handleDelete = async (no: number) => {
-    const ok = confirm(`No.${no} のTodoリストを削除しますか？`)
+  const handleDelete = async (id: number) => {
+    const ok = confirm(`id.${id} のTodoリストを削除しますか？`)
     if (!ok) return
 
-    await deleteTodo(no)
+    await deleteTodo(id)
     mutate()
   }
 
@@ -62,20 +62,20 @@ export default function Page() {
         <Table.Tbody>
           {todos?.map((todo) => (
             <Table.Tr
-              key={todo.no}
+              key={todo.id}
               style={{ backgroundColor: getColor(todo.priority) }}
             >
-              <Table.Td>{todo.no}</Table.Td>
+              <Table.Td>{todo.id}</Table.Td>
               <Table.Td>{todo.title}</Table.Td>
               <Table.Td>{todo.content}</Table.Td>
               <Table.Td>{formatDateTime(todo.createdAt)}</Table.Td>
               <Table.Td>{formatDateTime(todo.updatedAt)}</Table.Td>
               <Table.Td>{todo.priority}</Table.Td>
               <Table.Td>
-                <Link href={`/edit?no=${todo.no}`}>
+                <Link href={`/edit?id=${todo.id}`}>
                   <Button variant='filled'>編集</Button>
                 </Link>
-                <Button variant='filled' onClick={() => handleDelete(todo.no)}>
+                <Button variant='filled' onClick={() => handleDelete(todo.id)}>
                   削除
                 </Button>
               </Table.Td>

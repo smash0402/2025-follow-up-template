@@ -1,7 +1,7 @@
 import useSWR, { type KeyedMutator } from 'swr'
 
 export type Todo = {
-  no: number
+  id: number
   title: string
   content: string
   createdAt: string

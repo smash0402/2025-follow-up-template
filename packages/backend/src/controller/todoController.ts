@@ -2,7 +2,7 @@ import type { FastifyPluginAsync, FastifyInstance } from 'fastify'
 import type { AddTodo, EditTodo } from '@/types'
 import {
   getAllTodos,
-  getTodoNo,
+  getTodoId,
   addTodo,
   updateTodo,
   deleteTodo
@@ -35,29 +35,29 @@ export const todoController: FastifyPluginAsync = async (
   })
 
   //番号限定(編集ページ用)
-  fastify.get<{ Params: { no: number } }>(
-    '/todo/:no',
+  fastify.get<{ Params: { id: number } }>(
+    '/todo/:id',
     async (request, reply) => {
       try {
-        const no = Number(request.params.no)
-        const todo = await getTodoNo(no)
+        const id = Number(request.params.id)
+        const todo = await getTodoId(id)
         if (!todo) return reply.status(404).send({ message: 'Todo not found' })
         reply.status(200).send(todo)
       } catch (error) {
-        console.error('GET /todo/:no error:', error)
+        console.error('GET /todo/:id error:', error)
         reply.status(500).send({ message: 'Failed to fetch todo' })
       }
     }
   )
 
   fastify.put<{
-    Params: { no: number }
-    Body: Omit<EditTodo, 'no'>
-  }>('/todo/:no', async (request, reply) => {
+    Params: { id: number }
+    Body: Omit<EditTodo, 'id'>
+  }>('/todo/:id', async (request, reply) => {
     try {
-      const no = Number(request.params.no)
+      const id = Number(request.params.id)
       const check: EditTodo = {
-        no,
+        id,
         title: request.body.title,
         content: request.body.content,
         priority: request.body.priority
@@ -66,15 +66,15 @@ export const todoController: FastifyPluginAsync = async (
       const result = await updateTodo(check)
       reply.status(200).send({ message: 'Todo updated', result })
     } catch (error) {
-      console.error('PUT /todo/:no error:', error)
+      console.error('PUT /todo/:id error:', error)
       reply.status(500).send({ message: 'Failed to update todo' })
     }
   })
 
-  fastify.delete('/todo/:no', async (request, reply) => {
+  fastify.delete('/todo/:id', async (request, reply) => {
     try {
-      const { no } = request.params as { no: string }
-      const result = await deleteTodo(Number(no))
+      const { id } = request.params as { id: string }
+      const result = await deleteTodo(Number(id))
 
       if (result.affectedRows === 0) {
         return reply.status(404).send({ message: 'Todo not found' })
@@ -82,7 +82,7 @@ export const todoController: FastifyPluginAsync = async (
 
       reply.status(200).send({ message: 'Todo deleted' })
     } catch (error) {
-      console.error('DELETE /todo/:no error:', error)
+      console.error('DELETE /todo/:id error:', error)
       reply.status(500).send({ message: 'Failed to delete todo' })
     }
   })

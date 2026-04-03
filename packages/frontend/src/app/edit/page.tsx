@@ -13,7 +13,7 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useRouter } from 'next/navigation'
-import { noFetchTodo } from '@/app/apis/noFetchTodo'
+import { idFetchTodo } from '@/app/apis/idFetchTodo'
 import { updateTodo } from '@/app/apis/updateTodo'
 import type { User, EditTodo } from '@shared/types'
 
@@ -22,14 +22,14 @@ export default function Page() {
   const [content, setContent] = useState<EditTodo['content']>('')
   const [priority, setPriority] = useState<EditTodo['priority']>('低')
   const searchParams = useSearchParams()
-  const no = Number(searchParams.get('no')) || 1
+  const id = Number(searchParams.get('id')) || 1
   const router = useRouter()
 
   useEffect(() => {
-    if (!no) return
+    if (!id) return
     const fetchTodo = async () => {
       try {
-        const res = await noFetchTodo(no)
+        const res = await idFetchTodo(id)
         const todo: User = await res.json()
         setTitle(todo.title)
         setContent(todo.content)
@@ -39,7 +39,7 @@ export default function Page() {
       }
     }
     fetchTodo()
-  }, [no])
+  }, [id])
 
   const handleSubmit = async () => {
     if (!title.trim()) {
@@ -47,7 +47,7 @@ export default function Page() {
       return
     }
     const check: EditTodo = {
-      no,
+      id,
       title,
       content,
       priority
