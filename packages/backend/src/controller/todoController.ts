@@ -13,14 +13,17 @@ export const todoController: FastifyPluginAsync = async (
 ) => {
   // 一覧取得（GET）
   fastify.get('/todo', async (_, reply) => {
-    const todos = await getAllTodos()
-    reply.status(200).send(todos)
+    try {
+      const todos = await getAllTodos()
+      reply.status(200).send(todos)
+    } catch (error) {
+      console.error('POST /todo error:', error)
+      reply.status(500).send({ message: 'Failed to add todo' })
+    }
   })
 
   // 登録（POST）
   fastify.post<{ Body: AddTodo }>('/todo', async (request, reply) => {
-    console.log('aaaaaaa')
-    console.log('request.body:', request.body)
     try {
       const body = request.body
       const result = await addTodo(body)
