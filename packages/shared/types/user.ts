@@ -4,5 +4,5 @@ export type User = {
   content: string
   createdAt: string
   updatedAt: string
-  priority: string
+  priority: '低' | '中' | '高'
 }

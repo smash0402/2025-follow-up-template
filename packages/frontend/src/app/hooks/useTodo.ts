@@ -1,4 +1,4 @@
-import useSWR from 'swr'
+import useSWR, { type KeyedMutator } from 'swr'
 
 export type Todo = {
   no: number
@@ -6,14 +6,14 @@ export type Todo = {
   content: string
   createdAt: string
   updatedAt: string
-  priority: string
+  priority: '低' | '中' | '高'
 }
 
 export function useTodos(): {
   todos: Todo[]
   error: Error | undefined
   isLoading: boolean
-  mutate: any
+  mutate: KeyedMutator<Todo[]>
 } {
   const fetcher = async (url: string): Promise<Todo[]> => {
     const res = await fetch(url)
