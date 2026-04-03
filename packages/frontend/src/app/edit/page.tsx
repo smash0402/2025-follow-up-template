@@ -10,9 +10,10 @@ import {
   Select
 } from '@mantine/core'
 import Link from 'next/link'
-import { useState, useEffect } from 'react' //状態確認
+import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useRouter } from 'next/navigation'
+import { noFetchTodo } from '@/app/apis/noFetchTodo'
 import { updateTodo } from '@/app/apis/updateTodo'
 import type { User, EditTodo } from '@shared/types'
 
@@ -21,16 +22,14 @@ export default function Page() {
   const [content, setContent] = useState<EditTodo['content']>('')
   const [priority, setPriority] = useState<EditTodo['priority']>('低')
   const searchParams = useSearchParams()
-  const no = Number(searchParams.get('no'))
+  const no = Number(searchParams.get('no')) || 1
   const router = useRouter()
 
   useEffect(() => {
     if (!no) return
     const fetchTodo = async () => {
       try {
-        const API_URL = process.env.NEXT_PUBLIC_API_URL
-        const res = await fetch(`${API_URL}/todo/${no}`)
-        if (!res.ok) throw new Error('Failed to fetch todo')
+        const res = await noFetchTodo(no)
         const todo: User = await res.json()
         setTitle(todo.title)
         setContent(todo.content)
@@ -68,40 +67,42 @@ export default function Page() {
       </Title>
 
       <Stack gap='md'>
-        <TextInput
-          label='タイトル'
-          placeholder='テキストを入力'
-          value={title}
-          maxLength={20}
-          onChange={(event) => setTitle(event.currentTarget.value)}
-        />
-        <TextInput
-          label='内容'
-          placeholder='テキストを入力'
-          value={content}
-          maxLength={200}
-          onChange={(event) => setContent(event.currentTarget.value)}
-        />
+        <form>
+          <TextInput
+            label='タイトル'
+            placeholder='テキストを入力'
+            value={title}
+            maxLength={20}
+            onChange={(event) => setTitle(event.currentTarget.value)}
+          />
+          <TextInput
+            label='内容'
+            placeholder='テキストを入力'
+            value={content}
+            maxLength={200}
+            onChange={(event) => setContent(event.currentTarget.value)}
+          />
 
-        <Select
-          label='タスク優先度'
-          placeholder='優先度を選んでください'
-          data={['低', '中', '高']}
-          value={priority}
-          onChange={(value) => {
-            if (value) setPriority(value as EditTodo['priority'])
-          }}
-        />
+          <Select
+            label='タスク優先度'
+            placeholder='優先度を選んでください'
+            data={['低', '中', '高']}
+            value={priority}
+            onChange={(value) => {
+              if (value) setPriority(value as EditTodo['priority'])
+            }}
+          />
 
-        <Group gap='sm'>
-          <Button variant='filled' onClick={handleSubmit}>
-            更新
-          </Button>
+          <Group gap='sm'>
+            <Button variant='filled' onClick={handleSubmit}>
+              更新
+            </Button>
 
-          <Link href='/'>
-            <Button variant='filled'>戻る</Button>
-          </Link>
-        </Group>
+            <Link href='/'>
+              <Button variant='filled'>戻る</Button>
+            </Link>
+          </Group>
+        </form>
       </Stack>
     </Container>
   )
