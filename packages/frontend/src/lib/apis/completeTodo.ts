@@ -1,18 +1,12 @@
-import type { EditTodo } from '@shared/types'
-
-export async function updateTodo(data: EditTodo) {
+export async function CompleteTodo(data: number) {
   try {
     const API_URL = process.env.NEXT_PUBLIC_API_URL
-    const res = await fetch(`${API_URL}/todo/${data.id}`, {
+    const res = await fetch(`${API_URL}/todo/complete`, {
       method: 'PUT',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        title: data.title,
-        content: data.content,
-        priority: data.priority,
-        public_private: data.public_private,
-        deadline: data.deadline
+        id: data
       })
     })
 

@@ -2,12 +2,14 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "baseUrl": ".",
+    "rootDir": "../",
     "outDir": "dist",
     "module": "ESNext",
     "moduleResolution": "Node",
     "esModuleInterop": true,
     "paths": {
-      "@/*": ["../shared/*", "./src/*"]
+      "@/*": ["./src/*"],
+      "@shared/*": ["../shared/*"]
     }
   },
   "include": ["src/**/*", "../shared"]

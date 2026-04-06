@@ -11,12 +11,16 @@
     "build": "tsc"
   },
   "dependencies": {
-    "fastify": "^5.5.0",
+    "@fastify/cookie": "11.0.2",
     "@fastify/cors": "^11.1.0",
+    "@fastify/secure-session": "^8.3.0",
+    "@fastify/session": "^11.1.1",
+    "fastify": "^5.5.0",
+    "fastify-bcrypt": "^1.0.1",
     "mysql2": "^3.14.3"
   },
   "devDependencies": {
-    "tsx": "^4.20.4",
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.10",
+    "tsx": "^4.20.4"
   }
 }

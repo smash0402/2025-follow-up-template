@@ -1,11 +1,12 @@
 import { pool } from '@/db'
 import type { RowDataPacket, ResultSetHeader } from 'mysql2'
-import type { AddTodo, EditTodo } from '@/types'
+import type { AddTodo, EditTodo } from '@shared/types'
 
-export const getAllTodos = async () => {
+export const getPublicTodo = async () => {
   try {
     const [rows] = await pool.query<RowDataPacket[]>(
-      'SELECT id, title, content, created_at, updated_at, priority FROM todo ORDER BY id ASC'
+      'SELECT id, title, content, created_at, updated_at, priority, name, public_private, userid, todoState, deadline FROM todos WHERE  public_private = ? ORDER BY id ASC',
+      ['public']
     )
     return rows.map((row) => ({
       id: row.id,
@@ -13,7 +14,12 @@ export const getAllTodos = async () => {
       content: row.content,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
-      priority: row.priority
+      priority: row.priority,
+      name: row.name,
+      publicPrivate: row.public_private,
+      userid: row.userid,
+      todoState: row.todoState,
+      deadline: row.deadline
     }))
   } catch (error) {
     console.error('Error fetching todo:', error)
@@ -21,10 +27,35 @@ export const getAllTodos = async () => {
   }
 }
 
-export const getTodoById = async (id: number) => {
+export const getLoginUserTodo = async (name: string) => {
   try {
     const [rows] = await pool.query<RowDataPacket[]>(
-      'SELECT id, title, content, created_at, updated_at, priority FROM todo WHERE id = ?',
+      'SELECT id, title, content, created_at, updated_at, priority, name, public_private, userid, todoState, deadline FROM todos WHERE name = ? OR public_private = ? ORDER BY id ASC',
+      [name, 'public']
+    )
+    return rows.map((row) => ({
+      id: row.id,
+      title: row.title,
+      content: row.content,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+      priority: row.priority,
+      name: row.name,
+      publicPrivate: row.public_private,
+      userid: row.userid,
+      todoState: row.todoState,
+      deadline: row.deadline
+    }))
+  } catch (error) {
+    console.error('Error fetching todo:', error)
+    throw error
+  }
+}
+
+export const findTodoById = async (id: number) => {
+  try {
+    const [rows] = await pool.query<RowDataPacket[]>(
+      'SELECT id, title, content, created_at, updated_at, priority, public_private, deadline FROM todos WHERE id = ?',
       [id]
     )
 
@@ -37,20 +68,35 @@ export const getTodoById = async (id: number) => {
       content: row.content,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
-      priority: row.priority
+      priority: row.priority,
+      public_private: row.public_private,
+      deadline: row.deadline
     }
   } catch (error) {
-    console.error('Error fetching todo by id:', error)
+    console.error('Error fetching todos by id:', error)
     throw error
   }
 }
 
-export const addTodo = async (data: AddTodo) => {
-  const { title, content, priority } = data
+export const addTodo = async (
+  data: AddTodo,
+  userid: string,
+  todoState: '完了' | '未完了'
+) => {
+  const { title, content, priority, name, public_private, deadline } = data
   try {
     const [result] = await pool.query<ResultSetHeader>(
-      'INSERT INTO todo (title, content, created_at, updated_at, priority) VALUES (?, ?, NOW(), NOW(), ?)',
-      [title, content, priority]
+      'INSERT INTO todos (title, content, created_at, updated_at, priority, name, public_private, userid, todoState,deadline) VALUES (?, ?, NOW(), NOW(), ?, ?, ?, ?, ?, ?)',
+      [
+        title,
+        content,
+        priority,
+        name,
+        public_private,
+        userid,
+        todoState,
+        deadline
+      ]
     )
     return result
   } catch (error) {
@@ -60,11 +106,11 @@ export const addTodo = async (data: AddTodo) => {
 }
 
 export const updateTodo = async (data: EditTodo) => {
-  const { title, content, id, priority } = data
+  const { title, content, id, priority, public_private, deadline } = data
   try {
     const [result] = await pool.query<ResultSetHeader>(
-      'UPDATE todo SET title = ?, content = ?, updated_at = NOW(), priority = ? WHERE id = ?',
-      [title, content, priority, id]
+      'UPDATE todos SET title = ?, content = ?, updated_at = NOW(), priority = ?, public_private = ?, deadline = ? WHERE id = ?',
+      [title, content, priority, public_private, deadline, id]
     )
     return result
   } catch (error) {
@@ -76,12 +122,38 @@ export const updateTodo = async (data: EditTodo) => {
 export const deleteTodo = async (id: number) => {
   try {
     const [result] = await pool.query<ResultSetHeader>(
-      'DELETE FROM todo WHERE id = ?',
+      'DELETE FROM todos WHERE id = ?',
       [id]
     )
     return result
   } catch (error) {
     console.error('Error deleting todo:', error)
+    throw error
+  }
+}
+
+export const completeTodo = async (id: number) => {
+  try {
+    const [result] = await pool.query<ResultSetHeader>(
+      'UPDATE todos SET todoState = ? WHERE id = ?',
+      ['完了', id]
+    )
+    return result
+  } catch (error) {
+    console.error('Error updating todo:', error)
+    throw error
+  }
+}
+
+export const incompleteTodo = async (id: number) => {
+  try {
+    const [result] = await pool.query<ResultSetHeader>(
+      'UPDATE todos SET todoState = ? WHERE id = ?',
+      ['未完了', id]
+    )
+    return result
+  } catch (error) {
+    console.error('Error updating todo:', error)
     throw error
   }
 }

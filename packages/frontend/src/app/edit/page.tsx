@@ -7,7 +7,9 @@ import {
   Container,
   TextInput,
   Group,
-  Select
+  Select,
+  Space,
+  Radio
 } from '@mantine/core'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
@@ -16,6 +18,7 @@ import { useRouter } from 'next/navigation'
 import { updateTodo } from '@/lib/apis/updateTodo'
 import type { EditTodo } from '@shared/types'
 import { getEditTodo } from '@/app/hooks/getEditTodo'
+import { DatePickerInput } from '@mantine/dates'
 
 export default function Page() {
   const searchParams = useSearchParams()
@@ -24,6 +27,9 @@ export default function Page() {
   const [title, setTitle] = useState<EditTodo['title']>('')
   const [content, setContent] = useState<EditTodo['content']>('')
   const [priority, setPriority] = useState<EditTodo['priority']>('低')
+  const [deadline, setDeadline] = useState<EditTodo['deadline']>(null)
+  const [public_private, setPublicPrivate] =
+    useState<EditTodo['public_private']>('public')
   const router = useRouter()
 
   useEffect(() => {
@@ -31,6 +37,7 @@ export default function Page() {
     setTitle(todo.title)
     setContent(todo.content)
     setPriority(todo.priority)
+    setDeadline(todo.deadline)
   }, [todo])
 
   if (error) return <div>Error fetching todos: {error.message}</div>
@@ -44,7 +51,9 @@ export default function Page() {
       id,
       title,
       content,
-      priority
+      priority,
+      public_private,
+      deadline
     }
     try {
       await updateTodo(check)
@@ -91,6 +100,29 @@ export default function Page() {
               if (value) setPriority(value as EditTodo['priority'])
             }}
           />
+
+          <DatePickerInput
+            label='タスク締切日を選んでください'
+            placeholder='日にち選択'
+            value={deadline}
+            onChange={setDeadline}
+          />
+
+          <Radio.Group
+            value={String(public_private)}
+            label='公開の有無 (他ユーザーから閲覧可能)'
+            withAsterisk
+            onChange={(value) => {
+              if (value) setPublicPrivate(value as EditTodo['public_private'])
+            }}
+          >
+            <Group mt='xs'>
+              <Radio value='public' label='public' />
+              <Radio value='private' label='private' />
+            </Group>
+          </Radio.Group>
+
+          <Space h='md' />
 
           <Group gap='sm'>
             <Button variant='filled' type='submit'>

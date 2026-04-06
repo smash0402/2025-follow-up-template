@@ -7,19 +7,31 @@ import {
   Container,
   TextInput,
   Group,
-  Select
+  Select,
+  Radio,
+  Space
 } from '@mantine/core'
 import Link from 'next/link'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { addTodo } from '@/lib/apis/addTodo'
 import type { AddTodoRequest, Todo } from '@shared/types'
+import { useUser } from '@/app/hooks/useUser'
+import { DatePickerInput } from '@mantine/dates'
 
 export default function Page() {
   const [title, setTitle] = useState<Todo['title']>('')
   const [content, setContent] = useState<Todo['content']>('')
   const [priority, setPriority] = useState<Todo['priority']>('低')
+  const [deadline, setDeadline] = useState<Todo['deadline']>(null)
+  const [public_private, setPublicPrivate] =
+    useState<Todo['public_private']>('public')
   const router = useRouter()
+  const { user, user_error, isLoading } = useUser()
+  const name = user[0]?.name ?? null
+
+  if (isLoading) return <div>Loading...</div>
+  if (user_error) return <div>Error fetching user: {user_error.message}</div>
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -37,7 +49,10 @@ export default function Page() {
     const check: AddTodoRequest = {
       title,
       content,
-      priority
+      priority,
+      name,
+      public_private,
+      deadline
     }
 
     try {
@@ -83,6 +98,29 @@ export default function Page() {
               if (value) setPriority(value as Todo['priority'])
             }}
           />
+
+          <DatePickerInput
+            label='タスク締切日を選んでください'
+            placeholder='日にち選択'
+            value={deadline}
+            onChange={setDeadline}
+          />
+
+          <Radio.Group
+            value={String(public_private)}
+            label='公開の有無 (他ユーザーから閲覧可能)'
+            withAsterisk
+            onChange={(value) => {
+              if (value) setPublicPrivate(value as Todo['public_private'])
+            }}
+          >
+            <Group mt='xs'>
+              <Radio value='public' label='public' />
+              <Radio value='private' label='private' />
+            </Group>
+          </Radio.Group>
+
+          <Space h='md' />
 
           <Group gap='sm'>
             <Button variant='filled' type='submit'>
