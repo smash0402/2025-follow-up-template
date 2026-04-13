@@ -35,8 +35,6 @@ export default function Page() {
 
   if (error) return <div>Error fetching todos: {error.message}</div>
 
-  console.log(title, content, priority)
-
   const handleSubmit = async () => {
     if (!title.trim()) {
       alert('タイトルを入力してください。')
