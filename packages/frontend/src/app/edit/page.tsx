@@ -13,33 +13,29 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useRouter } from 'next/navigation'
-import { getTodo } from '@/lib/apis/getTodo'
-import { updateTodo } from '@/app/apis/updateTodo'
-import type { Todo, EditTodo } from '@shared/types'
+import { updateTodo } from '@/lib/apis/updateTodo'
+import type { EditTodo } from '@shared/types'
+import { getEditTodo } from '@/app/hooks/getEditTodo'
 
 export default function Page() {
+  const searchParams = useSearchParams()
+  const id = Number(searchParams.get('id')) || 1
+  const { todo, error } = getEditTodo(id)
   const [title, setTitle] = useState<EditTodo['title']>('')
   const [content, setContent] = useState<EditTodo['content']>('')
   const [priority, setPriority] = useState<EditTodo['priority']>('低')
-  const searchParams = useSearchParams()
-  const id = Number(searchParams.get('id')) || 1
   const router = useRouter()
 
   useEffect(() => {
-    if (!id) return
-    const fetchTodo = async () => {
-      try {
-        const res = await getTodo(id)
-        const todo: Todo = await res.json()
-        setTitle(todo.title)
-        setContent(todo.content)
-        setPriority(todo.priority)
-      } catch (error) {
-        console.error(error)
-      }
-    }
-    fetchTodo()
-  }, [id])
+    if (!todo) return
+    setTitle(todo.title)
+    setContent(todo.content)
+    setPriority(todo.priority)
+  }, [todo])
+
+  if (error) return <div>Error fetching todos: {error.message}</div>
+
+  console.log(title, content, priority)
 
   const handleSubmit = async () => {
     if (!title.trim()) {
