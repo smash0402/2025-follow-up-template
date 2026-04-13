@@ -52,7 +52,12 @@ export default function Page() {
       </Title>
 
       <Stack gap='md'>
-        <form>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault()
+            handleSubmit()
+          }}
+        >
           <TextInput
             label='タイトル'
             placeholder='テキストを入力'
@@ -79,7 +84,7 @@ export default function Page() {
           />
 
           <Group gap='sm'>
-            <Button variant='filled' onClick={handleSubmit}>
+            <Button variant='filled' type='submit'>
               追加
             </Button>
 
