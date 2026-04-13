@@ -13,9 +13,9 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useRouter } from 'next/navigation'
-import { idFetchTodo } from '@/app/apis/idFetchTodo'
+import { getTodo } from '@/lib/apis/getTodo'
 import { updateTodo } from '@/app/apis/updateTodo'
-import type { User, EditTodo } from '@shared/types'
+import type { Todo, EditTodo } from '@shared/types'
 
 export default function Page() {
   const [title, setTitle] = useState<EditTodo['title']>('')
@@ -29,8 +29,8 @@ export default function Page() {
     if (!id) return
     const fetchTodo = async () => {
       try {
-        const res = await idFetchTodo(id)
-        const todo: User = await res.json()
+        const res = await getTodo(id)
+        const todo: Todo = await res.json()
         setTitle(todo.title)
         setContent(todo.content)
         setPriority(todo.priority)

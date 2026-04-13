@@ -12,7 +12,7 @@ import {
 import Link from 'next/link'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { addTodo } from '@/app/apis/addTodo'
+import { addTodo } from '@/lib/apis/addTodo'
 import type { AddTodo } from '@shared/types'
 
 export default function Page() {

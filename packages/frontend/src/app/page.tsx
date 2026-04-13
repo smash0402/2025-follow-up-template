@@ -3,7 +3,7 @@
 import { Button, Table, Title, Container } from '@mantine/core'
 import { useTodos } from '@/app/hooks/useTodo'
 import Link from 'next/link'
-import { deleteTodo } from '@/app/apis/deleteTodo'
+import { deleteTodo } from '@/lib/apis/deleteTodo'
 
 export default function Page() {
   const { todos, error, isLoading, mutate } = useTodos()
