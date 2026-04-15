@@ -1,13 +1,5 @@
 import useSWR, { type KeyedMutator } from 'swr'
-
-export type Todo = {
-  id: number
-  title: string
-  content: string
-  createdAt: string
-  updatedAt: string
-  priority: '低' | '中' | '高'
-}
+import type { Todo } from '@shared/types'
 
 export function getEditTodo(id: number): {
   todo: Todo | undefined

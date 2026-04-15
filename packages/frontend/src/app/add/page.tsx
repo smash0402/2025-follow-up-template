@@ -13,15 +13,17 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { addTodo } from '@/lib/apis/addTodo'
-import type { AddTodo } from '@shared/types'
+import type { AddTodoRequest, Todo } from '@shared/types'
 
 export default function Page() {
-  const [title, setTitle] = useState<AddTodo['title']>('')
-  const [content, setContent] = useState<AddTodo['content']>('')
-  const [priority, setPriority] = useState<AddTodo['priority']>('低')
+  const [title, setTitle] = useState<Todo['title']>('')
+  const [content, setContent] = useState<Todo['content']>('')
+  const [priority, setPriority] = useState<Todo['priority']>('低')
   const router = useRouter()
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+
     if (!title.trim()) {
       alert('タイトルを入力してください。')
       return
@@ -32,7 +34,7 @@ export default function Page() {
       return
     }
 
-    const check: AddTodo = {
+    const check: AddTodoRequest = {
       title,
       content,
       priority
@@ -54,8 +56,7 @@ export default function Page() {
       <Stack gap='md'>
         <form
           onSubmit={(e) => {
-            e.preventDefault()
-            handleSubmit()
+            handleSubmit(e)
           }}
         >
           <TextInput
@@ -79,7 +80,7 @@ export default function Page() {
             data={['低', '中', '高']}
             value={priority}
             onChange={(value) => {
-              if (value) setPriority(value as AddTodo['priority'])
+              if (value) setPriority(value as Todo['priority'])
             }}
           />
 
