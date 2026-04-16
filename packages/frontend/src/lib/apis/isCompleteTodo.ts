@@ -1,12 +1,14 @@
-export async function CompleteTodo(data: number) {
+import type { TodoState } from '@shared/types'
+
+export async function isCompleteTodo(id: number, todoState: TodoState) {
   try {
     const API_URL = process.env.NEXT_PUBLIC_API_URL
-    const res = await fetch(`${API_URL}/todo/complete`, {
+    const res = await fetch(`${API_URL}/todo/isCompleteTodo/${id}`, {
       method: 'PUT',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        id: data
+        todoState: todoState
       })
     })
 

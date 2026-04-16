@@ -13,8 +13,7 @@ import { useUser } from '@/app/hooks/useUser'
 import Link from 'next/link'
 import { deleteTodo } from '@/lib/apis/deleteTodo'
 import { Logout } from '@/lib/apis/logout'
-import { CompleteTodo } from '@/lib/apis/completeTodo'
-import { IncompleteTodo } from '@/lib/apis/incompleteTodo'
+import { isCompleteTodo } from '@/lib/apis/isCompleteTodo'
 import { useState } from 'react'
 import { TODOSTATE, type Priority, type TodoState } from '@shared/types'
 import dayjs from 'dayjs'
@@ -74,17 +73,25 @@ export default function Page() {
     user_mutate()
   }
 
-  const completionTodo = async (CompleteTodoId: number) => {
-    await CompleteTodo(CompleteTodoId)
+  const changeTodoState = async (
+    CompleteTodoId: number,
+    TodoState: TodoState
+  ) => {
+    if (TodoState === '完了') {
+      TodoState = '未完了'
+    } else {
+      TodoState = '完了'
+    }
+    await isCompleteTodo(CompleteTodoId, TodoState)
     mutate()
     user_mutate()
   }
 
-  const incompletionTodo = async (CompleteTodoId: number) => {
-    await IncompleteTodo(CompleteTodoId)
-    mutate()
-    user_mutate()
-  }
+  // const incompletionTodo = async (CompleteTodoId: number) => {
+  //   await IncompleteTodo(CompleteTodoId)
+  //   mutate()
+  //   user_mutate()
+  // }
 
   const truncateContent = (content: string) => {
     if (content.length >= 13) {
@@ -222,7 +229,7 @@ export default function Page() {
                     {dayjs(todo.deadline).format('YYYY月M日D日')}
                   </Table.Td>
                 ) : (
-                  <Table.Td></Table.Td>
+                  <Table.Td style={{ textAlign: 'center' }}>なし</Table.Td>
                 )}
                 <Table.Td style={{ textAlign: 'center' }}>
                   {todo.priority}
@@ -242,7 +249,7 @@ export default function Page() {
                     {todo.todoState === TODOSTATE.incomplete ? (
                       <Button
                         variant='filled'
-                        onClick={() => completionTodo(todo.id)}
+                        onClick={() => changeTodoState(todo.id, todo.todoState)}
                         style={{ paddingLeft: '13px', paddingRight: '13px' }}
                       >
                         タスク完了　
@@ -250,7 +257,7 @@ export default function Page() {
                     ) : (
                       <Button
                         variant='filled'
-                        onClick={() => incompletionTodo(todo.id)}
+                        onClick={() => changeTodoState(todo.id, todo.todoState)}
                         style={{ paddingLeft: '13px', paddingRight: '13px' }}
                       >
                         タスク未完了

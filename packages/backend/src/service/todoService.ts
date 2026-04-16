@@ -1,6 +1,7 @@
 import { pool } from '@/db'
 import type { RowDataPacket, ResultSetHeader } from 'mysql2'
-import type { AddTodo, EditTodo } from '@shared/types'
+import type { AddTodoRequest, EditTodo, TodoState } from '@shared/types'
+import { todo } from 'node:test'
 
 export const getPublicTodo = async () => {
   try {
@@ -79,7 +80,7 @@ export const findTodoById = async (id: number) => {
 }
 
 export const addTodo = async (
-  data: AddTodo,
+  data: AddTodoRequest,
   userid: string,
   todoState: '完了' | '未完了'
 ) => {
@@ -132,24 +133,11 @@ export const deleteTodo = async (id: number) => {
   }
 }
 
-export const completeTodo = async (id: number) => {
+export const changeTodoState = async (id: number, todoState: TodoState) => {
   try {
     const [result] = await pool.query<ResultSetHeader>(
       'UPDATE todos SET todoState = ? WHERE id = ?',
-      ['完了', id]
-    )
-    return result
-  } catch (error) {
-    console.error('Error updating todo:', error)
-    throw error
-  }
-}
-
-export const incompleteTodo = async (id: number) => {
-  try {
-    const [result] = await pool.query<ResultSetHeader>(
-      'UPDATE todos SET todoState = ? WHERE id = ?',
-      ['未完了', id]
+      [todoState, id]
     )
     return result
   } catch (error) {

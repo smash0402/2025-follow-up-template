@@ -1,5 +1,5 @@
 import type { FastifyPluginAsync, FastifyInstance } from 'fastify'
-import type { AddTodo, EditTodo } from '@shared/types'
+import type { AddTodoRequest, EditTodo, TodoState } from '@shared/types'
 import {
   getPublicTodo,
   getLoginUserTodo,
@@ -7,8 +7,7 @@ import {
   addTodo,
   updateTodo,
   deleteTodo,
-  completeTodo,
-  incompleteTodo
+  changeTodoState
 } from '@/service/todoService'
 
 export const todoController: FastifyPluginAsync = async (
@@ -33,7 +32,7 @@ export const todoController: FastifyPluginAsync = async (
   })
 
   // 登録（POST）
-  fastify.post<{ Body: AddTodo }>('/todo', async (request, reply) => {
+  fastify.post<{ Body: AddTodoRequest }>('/todo', async (request, reply) => {
     try {
       const body = request.body
       const user_id = request.session.user_id
@@ -132,33 +131,20 @@ export const todoController: FastifyPluginAsync = async (
     }
   )
 
-  fastify.put('/todo/complete', async (request, reply) => {
+  fastify.put<{
+    Params: { id: number }
+    Body: { todoState: TodoState }
+  }>('/todo/isCompleteTodo/:id', async (request, reply) => {
     try {
-      const { id } = request.body as { id: number }
+      const id = request.params.id
+      const { todoState } = request.body as { todoState: TodoState }
       const user_id = request.session.user_id
       if (!user_id) {
         reply.code(404).send()
         return
       }
 
-      const result = await completeTodo(id)
-      reply.status(200).send({ message: 'Todo updated', result })
-    } catch (error) {
-      console.error('PUT /todo/:id error:', error)
-      reply.status(500).send({ message: 'Failed to update todo' })
-    }
-  })
-
-  fastify.put('/todo/incomplete', async (request, reply) => {
-    try {
-      const { id } = request.body as { id: number }
-      const user_id = request.session.user_id
-      if (!user_id) {
-        reply.code(404).send()
-        return
-      }
-
-      const result = await incompleteTodo(id)
+      const result = await changeTodoState(id, todoState)
       reply.status(200).send({ message: 'Todo updated', result })
     } catch (error) {
       console.error('PUT /todo/:id error:', error)
