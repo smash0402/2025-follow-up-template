@@ -12,12 +12,12 @@ import {
 import Link from 'next/link'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import type { login } from '@shared/types'
-import { Login } from '@/lib/apis/login'
+import type { LoginUser, UserInfo } from '@shared/types'
+import { login } from '@/lib/apis/login'
 
 export default function Page() {
-  const [userid, setUserId] = useState<login['userid']>('')
-  const [password, setPassword] = useState<login['password']>('')
+  const [userid, setUserId] = useState<UserInfo['userid']>('')
+  const [password, setPassword] = useState<UserInfo['password']>('')
   const router = useRouter()
 
   const handleSubmit = async () => {
@@ -31,13 +31,13 @@ export default function Page() {
       return
     }
 
-    const check: login = {
+    const check: LoginUser = {
       userid,
       password
     }
 
     try {
-      const res = await Login(check)
+      const res = await login(check)
       if (res) router.push('/')
     } catch {}
   }

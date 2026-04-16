@@ -8,11 +8,11 @@ import {
   Space,
   MultiSelect
 } from '@mantine/core'
-import { useTodos } from '@/app/hooks/useTodo'
+import { useTodos } from '@/app/hooks/useTodos'
 import { useUser } from '@/app/hooks/useUser'
 import Link from 'next/link'
 import { deleteTodo } from '@/lib/apis/deleteTodo'
-import { Logout } from '@/lib/apis/logout'
+import { logout } from '@/lib/apis/logout'
 import { isCompleteTodo } from '@/lib/apis/isCompleteTodo'
 import { useState } from 'react'
 import { TODOSTATE, type Priority, type TodoState } from '@shared/types'
@@ -24,12 +24,12 @@ export default function Page() {
     priority: Priority[]
     complete: TodoState[]
   }
-  const { user, user_error, isLoading, user_mutate } = useUser()
+  const { user, user_error, isLoading } = useUser()
   const [filter, setFilter] = useState<filterTodo>({
     priority: [],
     complete: []
   })
-  const showActionButton = user?.isLoggedIn ?? ''
+  const showActionButton = user?.userId ?? ''
   const checkLogin = !!showActionButton
 
   const { todos, error, mutate } = useTodos()
@@ -43,15 +43,13 @@ export default function Page() {
 
     await deleteTodo(id)
     mutate()
-    user_mutate()
   }
 
   const logoutUser = async () => {
     const ok = confirm(`ログアウトしますか？`)
     if (!ok) return
-    await Logout()
+    await logout()
     mutate()
-    user_mutate()
   }
 
   const getColor = (
@@ -60,16 +58,17 @@ export default function Page() {
     todoState: TodoState
   ) => {
     const checkOverdueTask = taskDeadlineComparison(deadline)
-    if (checkOverdueTask < 0 || todoState === TODOSTATE.complete)
+    if (checkOverdueTask < 0 || todoState === TODOSTATE.complete) {
       return 'rgb(193, 192, 192)'
-    if (priority === '高') return 'rgb(244, 164, 169)'
-    if (priority === '中') return 'rgb(255, 255, 188)'
-    if (priority === '低') return 'rgb(168, 238, 249)'
-  }
-
-  const filterPriorityTodo = () => {
-    mutate()
-    user_mutate()
+    } else if (priority === '高') {
+      return 'rgb(244, 164, 169)'
+    } else if (priority === '中') {
+      return 'rgb(255, 255, 188)'
+    } else if (priority === '低') {
+      return 'rgb(168, 238, 249)'
+    } else {
+      return 'rgb(168, 238, 249)'
+    }
   }
 
   const changeTodoState = async (
@@ -83,7 +82,6 @@ export default function Page() {
     }
     await isCompleteTodo(CompleteTodoId, TodoState)
     mutate()
-    user_mutate()
   }
 
   const truncateContent = (content: string) => {
@@ -290,7 +288,7 @@ export default function Page() {
             ...prev,
             priority: val as filterTodo['priority']
           }))
-          filterPriorityTodo()
+          mutate()
         }}
       />
 
@@ -306,7 +304,7 @@ export default function Page() {
             ...prev,
             complete: val as filterTodo['complete']
           }))
-          filterPriorityTodo()
+          mutate()
         }}
       />
     </Container>

@@ -14,7 +14,7 @@ const fastify = Fastify({
 
 fastify.register(session, {
   sessionName: 'session',
-  cookieName: 'user_id',
+  cookieName: 'userId',
   key: fs.readFileSync(path.join(process.cwd(), 'secret-key')),
   cookie: {
     path: '/',

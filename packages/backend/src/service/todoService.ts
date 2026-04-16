@@ -1,11 +1,15 @@
 import { pool } from '@/db'
 import type { RowDataPacket, ResultSetHeader } from 'mysql2'
-import type { AddTodoRequest, EditTodo, TodoState } from '@shared/types'
+import type {
+  AddTodoRequest,
+  UpdateTodoRequest,
+  TodoState
+} from '@shared/types'
 
-export const getPublicTodo = async () => {
+export const getPublicTodos = async () => {
   try {
     const [rows] = await pool.query<RowDataPacket[]>(
-      'SELECT todos.id, todos.title, todos.content, todos.created_at, todos.updated_at, todos.priority, userInfos.name, todos.public_private, todos.userid, todos.todoState, todos.deadline FROM todos JOIN userInfos ON todos.userid = userInfos.userid  WHERE  todos.public_private = ? ORDER BY id ASC',
+      'SELECT todos.id, todos.title, todos.content, todos.created_at, todos.updated_at, todos.priority, user_infos.name, todos.public_private, todos.userid, todos.todoState, todos.deadline FROM todos JOIN user_infos ON todos.userid = user_infos.id  WHERE  todos.public_private = ? ORDER BY id ASC',
       ['public']
     )
     return rows.map((row) => ({
@@ -27,10 +31,10 @@ export const getPublicTodo = async () => {
   }
 }
 
-export const getLoginUserTodo = async (todoId: string) => {
+export const getLoginUserTodos = async (todoId: string) => {
   try {
     const [rows] = await pool.query<RowDataPacket[]>(
-      'SELECT todos.id, todos.title, todos.content, todos.created_at, todos.updated_at, todos.priority, userInfos.name, todos.public_private, todos.userid, todos.todoState, todos.deadline FROM todos JOIN userInfos ON todos.userid = userInfos.userid WHERE todos.userid = ? OR todos.public_private = ? ORDER BY id ASC',
+      'SELECT todos.id, todos.title, todos.content, todos.created_at, todos.updated_at, todos.priority, user_infos.name, todos.public_private, todos.userid, todos.todoState, todos.deadline FROM todos JOIN user_infos ON todos.userid = user_infos.id WHERE todos.userid = ? OR todos.public_private = ? ORDER BY id ASC',
       [todoId, 'public']
     )
     return rows.map((row) => ({
@@ -83,11 +87,11 @@ export const addTodo = async (
   userid: string,
   todoState: '完了' | '未完了'
 ) => {
-  const { title, content, priority, public_private, deadline } = data
+  const { title, content, priority, publicStatus, deadline } = data
   try {
     const [result] = await pool.query<ResultSetHeader>(
       'INSERT INTO todos (title, content, created_at, updated_at, priority, public_private, userid, todoState,deadline) VALUES (?, ?, NOW(), NOW(), ?, ?, ?, ?, ?)',
-      [title, content, priority, public_private, userid, todoState, deadline]
+      [title, content, priority, publicStatus, userid, todoState, deadline]
     )
     return result
   } catch (error) {
@@ -96,12 +100,12 @@ export const addTodo = async (
   }
 }
 
-export const updateTodo = async (data: EditTodo) => {
-  const { title, content, id, priority, public_private, deadline } = data
+export const updateTodo = async (data: UpdateTodoRequest) => {
+  const { title, content, id, priority, publicStatus, deadline } = data
   try {
     const [result] = await pool.query<ResultSetHeader>(
       'UPDATE todos SET title = ?, content = ?, updated_at = NOW(), priority = ?, public_private = ?, deadline = ? WHERE id = ?',
-      [title, content, priority, public_private, deadline, id]
+      [title, content, priority, publicStatus, deadline, id]
     )
     return result
   } catch (error) {

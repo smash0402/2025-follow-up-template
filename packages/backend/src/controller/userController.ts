@@ -1,5 +1,5 @@
 import type { FastifyPluginAsync, FastifyInstance } from 'fastify'
-import type { login, UserInfo } from '@shared/types'
+import type { LoginUser, UserInfo } from '@shared/types'
 import { addUserInfo, getUserById } from '@/service/userService'
 
 export const userController: FastifyPluginAsync = async (
@@ -12,7 +12,7 @@ export const userController: FastifyPluginAsync = async (
       body.password = await fastify.bcrypt.hash(body.password)
       const result = await addUserInfo(body)
 
-      request.session.user_id = body.userid
+      request.session.set('userId', body.userid)
 
       reply.status(201).send({ message: 'user added', result })
     } catch (error) {
@@ -23,12 +23,12 @@ export const userController: FastifyPluginAsync = async (
 
   // ユーザー情報取得（一件）
   fastify.post<{ Params: { id: string }; Body: { password: string } }>(
-    '/userInfo/:id',
+    '/auth/login/:id',
     async (request, reply) => {
       try {
         const userid = request.params.id
         const user = await getUserById(userid)
-        const login: login = {
+        const login: LoginUser = {
           userid,
           password: request.body.password
         }
@@ -39,7 +39,7 @@ export const userController: FastifyPluginAsync = async (
         )
         if (!match) return reply.status(401).send({ message: 'passwordMiss' })
 
-        request.session.user_id = userid
+        request.session.userId = userid
 
         reply.status(200).send({ name: user.name })
       } catch (error) {

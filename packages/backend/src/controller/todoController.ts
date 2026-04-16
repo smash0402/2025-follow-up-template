@@ -1,8 +1,12 @@
 import type { FastifyPluginAsync, FastifyInstance } from 'fastify'
-import type { AddTodoRequest, EditTodo, TodoState } from '@shared/types'
+import type {
+  AddTodoRequest,
+  UpdateTodoRequest,
+  TodoState
+} from '@shared/types'
 import {
-  getPublicTodo,
-  getLoginUserTodo,
+  getPublicTodos,
+  getLoginUserTodos,
   findTodoById,
   addTodo,
   updateTodo,
@@ -16,12 +20,12 @@ export const todoController: FastifyPluginAsync = async (
   // 一覧取得（POST）
   fastify.post('/allTodo', async (request, reply) => {
     try {
-      const user_id = request.session.user_id
-      if (!user_id) {
-        const todos = await getPublicTodo()
+      const userId = request.session.userId
+      if (!userId) {
+        const todos = await getPublicTodos()
         reply.status(200).send(todos)
       } else {
-        const todos = await getLoginUserTodo(user_id)
+        const todos = await getLoginUserTodos(userId)
         reply.status(200).send(todos)
       }
     } catch (error) {
@@ -34,15 +38,15 @@ export const todoController: FastifyPluginAsync = async (
   fastify.post<{ Body: AddTodoRequest }>('/todo', async (request, reply) => {
     try {
       const body = request.body
-      const user_id = request.session.user_id
-      if (!user_id) {
+      const userId = request.session.userId
+      if (!userId) {
         reply.code(404).send()
         return
       }
 
-      request.session.user_id = user_id
+      request.session.userId = userId
 
-      const result = await addTodo(body, user_id, '未完了')
+      const result = await addTodo(body, userId, '未完了')
       reply.status(201).send({ message: 'Todo added', result })
     } catch (error) {
       console.error('POST /todo error:', error)
@@ -56,8 +60,8 @@ export const todoController: FastifyPluginAsync = async (
     async (request, reply) => {
       try {
         const id = request.params.id
-        const user_id = request.session.user_id
-        if (!user_id) {
+        const userId = request.session.userId
+        if (!userId) {
           reply.code(404).send()
           return
         }
@@ -74,24 +78,24 @@ export const todoController: FastifyPluginAsync = async (
   //Todoリスト編集
   fastify.put<{
     Params: { id: number }
-    Body: Omit<EditTodo, 'id'>
+    Body: Omit<UpdateTodoRequest, 'id'>
   }>('/todo/:id', async (request, reply) => {
     try {
       const id = request.params.id
-      const user_id = request.session.user_id
-      if (!user_id) {
+      const userId = request.session.userId
+      if (!userId) {
         reply.code(404).send()
         return
       }
 
-      request.session.user_id = user_id
+      request.session.userId = userId
 
-      const todo: EditTodo = {
+      const todo: UpdateTodoRequest = {
         id,
         title: request.body.title,
         content: request.body.content,
         priority: request.body.priority,
-        public_private: request.body.public_private,
+        publicStatus: request.body.publicStatus,
         deadline: request.body.deadline
       }
 
@@ -109,12 +113,12 @@ export const todoController: FastifyPluginAsync = async (
     async (request, reply) => {
       try {
         const id = request.params.id
-        const user_id = request.session.user_id
-        if (!user_id) {
+        const userId = request.session.userId
+        if (!userId) {
           reply.code(404).send()
           return
         }
-        request.session.user_id = user_id
+        request.session.userId = userId
 
         const result = await deleteTodo(id)
 
@@ -137,8 +141,8 @@ export const todoController: FastifyPluginAsync = async (
     try {
       const id = request.params.id
       const { todoState } = request.body as { todoState: TodoState }
-      const user_id = request.session.user_id
-      if (!user_id) {
+      const userId = request.session.userId
+      if (!userId) {
         reply.code(404).send()
         return
       }

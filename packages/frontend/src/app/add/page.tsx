@@ -16,15 +16,17 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { addTodo } from '@/lib/apis/addTodo'
 import type { AddTodoRequest, Todo } from '@shared/types'
+import { PRIORITY, PUBLICSTATUS } from '@shared/types'
 import { DatePickerInput } from '@mantine/dates'
 
 export default function Page() {
   const [title, setTitle] = useState<Todo['title']>('')
   const [content, setContent] = useState<Todo['content']>('')
-  const [priority, setPriority] = useState<Todo['priority']>('低')
+  const [priority, setPriority] = useState<Todo['priority']>(PRIORITY.low)
   const [deadline, setDeadline] = useState<Todo['deadline']>(null)
-  const [public_private, setPublicPrivate] =
-    useState<Todo['public_private']>('public')
+  const [publicStatus, setPublicStatus] = useState<Todo['publicStatus']>(
+    PUBLICSTATUS.public
+  )
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -44,7 +46,7 @@ export default function Page() {
       title,
       content,
       priority,
-      public_private,
+      publicStatus,
       deadline
     }
 
@@ -55,6 +57,15 @@ export default function Page() {
       alert('送信失敗')
     }
   }
+
+  const onChangePriority = (value: string | null) => {
+    if (value) setPriority(value as Todo['priority'])
+  }
+
+  const onChangePublicStatus = (value: string) => {
+    if (value) setPublicStatus(value as Todo['publicStatus'])
+  }
+
   return (
     <Container size='md' mt='xl'>
       <Title order={2} mb='md'>
@@ -88,7 +99,7 @@ export default function Page() {
             data={['低', '中', '高']}
             value={priority}
             onChange={(value) => {
-              if (value) setPriority(value as Todo['priority'])
+              onChangePriority(value)
             }}
           />
 
@@ -100,11 +111,11 @@ export default function Page() {
           />
 
           <Radio.Group
-            value={String(public_private)}
+            value={String(publicStatus)}
             label='公開の有無 (他ユーザーから閲覧可能)'
             withAsterisk
             onChange={(value) => {
-              if (value) setPublicPrivate(value as Todo['public_private'])
+              onChangePublicStatus(value)
             }}
           >
             <Group mt='xs'>

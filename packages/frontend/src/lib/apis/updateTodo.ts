@@ -1,6 +1,6 @@
-import type { EditTodo } from '@shared/types'
+import type { UpdateTodoRequest } from '@shared/types'
 
-export async function updateTodo(data: EditTodo) {
+export async function updateTodo(data: UpdateTodoRequest) {
   try {
     const API_URL = process.env.NEXT_PUBLIC_API_URL
     const res = await fetch(`${API_URL}/todo/${data.id}`, {
@@ -11,7 +11,7 @@ export async function updateTodo(data: EditTodo) {
         title: data.title,
         content: data.content,
         priority: data.priority,
-        public_private: data.public_private,
+        publicStatus: data.publicStatus,
         deadline: data.deadline
       })
     })

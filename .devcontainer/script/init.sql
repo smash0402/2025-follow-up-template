@@ -1,6 +1,6 @@
 -- ログイン認証用データテーブル
-CREATE TABLE userInfos(
-  userid VARCHAR(100)  COLLATE utf8mb4_bin NOT NULL PRIMARY KEY ,    -- ユーザーid
+CREATE TABLE user_infos(
+  id VARCHAR(100)  COLLATE utf8mb4_bin NOT NULL PRIMARY KEY ,    -- ユーザーid
   password VARCHAR(100) NOT NULL,              -- パスワード
   name VARCHAR(500) NOT NULL                   -- 名前
 );
@@ -17,5 +17,5 @@ CREATE TABLE todos (
   userid VARCHAR(100)  COLLATE utf8mb4_bin NOT NULL,              -- ユーザーid
   todoState VARCHAR(10) NOT NULL,         -- タスク完了or未完了
   deadline DATE,
-  FOREIGN KEY  (userid) REFERENCES userInfos(userid)
+  FOREIGN KEY  (userid) REFERENCES user_infos(id)
 );

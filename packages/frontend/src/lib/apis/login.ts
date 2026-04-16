@@ -1,9 +1,9 @@
-import type { login } from '@shared/types'
+import type { LoginUser } from '@shared/types'
 
-export async function Login(data: login) {
+export async function login(data: LoginUser) {
   try {
     const API_URL = process.env.NEXT_PUBLIC_API_URL
-    const res = await fetch(`${API_URL}/userInfo/${data.userid}`, {
+    const res = await fetch(`${API_URL}/auth/login/${data.userid}`, {
       method: 'POST',
       credentials: 'include',
       headers: {

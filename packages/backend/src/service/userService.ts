@@ -6,7 +6,7 @@ export const addUserInfo = async (data: UserInfo) => {
   const { userid, password, name } = data
   try {
     const [result] = await pool.query<ResultSetHeader>(
-      'INSERT INTO userInfos (userid, password, name) VALUES (?, ?,  ?)',
+      'INSERT INTO user_infos (id, password, name) VALUES (?, ?,  ?)',
       [userid, password, name]
     )
     return result
@@ -19,7 +19,7 @@ export const addUserInfo = async (data: UserInfo) => {
 export const getUserById = async (id: string) => {
   try {
     const [rows] = await pool.query<RowDataPacket[]>(
-      'SELECT userid, password, name FROM userInfos WHERE userid = ?',
+      'SELECT id, password, name FROM user_infos WHERE id = ?',
       [id]
     )
 
@@ -32,7 +32,7 @@ export const getUserById = async (id: string) => {
       name: row.name
     }
   } catch (error) {
-    console.error('Error fetching user by userid:', error)
+    console.error('Error fetching user by id:', error)
     throw error
   }
 }
