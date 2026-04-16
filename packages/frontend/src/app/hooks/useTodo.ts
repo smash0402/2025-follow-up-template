@@ -1,12 +1,12 @@
 import useSWR, { type KeyedMutator } from 'swr'
 import type { Todo } from '@shared/types'
 
-export function useTodos(name: string): {
+export function useTodos(): {
   todos: Todo[]
   error: Error | undefined
   mutate: KeyedMutator<Todo[]>
 } {
-  const fetcher = async ([url, name]: [string, string]): Promise<Todo[]> => {
+  const fetcher = async (url: string): Promise<Todo[]> => {
     const res = await fetch(url, {
       method: 'POST',
       credentials: 'include',
@@ -24,8 +24,10 @@ export function useTodos(name: string): {
     return res.json()
   }
   const API_URL = process.env.NEXT_PUBLIC_API_URL
-  const key = [`${API_URL}/allTodo`, name]
-  const { data, error, mutate } = useSWR<Todo[], Error>(key, fetcher)
+  const { data, error, mutate } = useSWR<Todo[], Error>(
+    `${API_URL}/allTodo`,
+    fetcher
+  )
 
   return { todos: data || [], error, mutate }
 }

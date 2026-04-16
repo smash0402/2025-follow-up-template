@@ -16,13 +16,12 @@ export const todoController: FastifyPluginAsync = async (
   // 一覧取得（POST）
   fastify.post('/allTodo', async (request, reply) => {
     try {
-      const { name } = request.body as { name: string }
       const user_id = request.session.user_id
       if (!user_id) {
         const todos = await getPublicTodo()
         reply.status(200).send(todos)
       } else {
-        const todos = await getLoginUserTodo(name)
+        const todos = await getLoginUserTodo(user_id)
         reply.status(200).send(todos)
       }
     } catch (error) {

@@ -1,17 +1,16 @@
 import useSWR, { type KeyedMutator } from 'swr'
 
 export type User = {
-  userid: string
-  name: string
+  isLoggedIn: boolean
 }
 
 export function useUser(): {
-  user: User[]
+  user: User | undefined
   user_error: Error | undefined
   isLoading: boolean
-  user_mutate: KeyedMutator<User[]>
+  user_mutate: KeyedMutator<User>
 } {
-  const fetcher = async (url: string): Promise<User[]> => {
+  const fetcher = async (url: string): Promise<User> => {
     const res = await fetch(url, {
       credentials: 'include'
     })
@@ -29,7 +28,7 @@ export function useUser(): {
     error: user_error,
     isLoading,
     mutate: user_mutate
-  } = useSWR<User[], Error>(`${API_URL}/getUserInfo`, fetcher)
+  } = useSWR<User, Error>(`${API_URL}/login`, fetcher)
 
-  return { user: data || [], user_error, isLoading, user_mutate }
+  return { user: data, user_error, isLoading, user_mutate }
 }

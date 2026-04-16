@@ -13,7 +13,6 @@ CREATE TABLE todos (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,          -- 作成日
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- 更新日
   priority VARCHAR(10) NOT NULL,             -- 優先度
-  name VARCHAR(100) NOT NULL,                -- todo製作者
   public_private VARCHAR(10) NOT NULL,       -- 公開/非公開
   userid VARCHAR(100)  COLLATE utf8mb4_bin NOT NULL,              -- ユーザーid
   todoState VARCHAR(10) NOT NULL,         -- タスク完了or未完了

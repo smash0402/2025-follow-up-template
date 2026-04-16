@@ -29,11 +29,10 @@ export default function Page() {
     priority: [],
     complete: []
   })
-  const name = user[0]?.name ?? null
-  const showActionButton = user[0]?.userid ?? ''
-  const checkLogin = !!name
+  const showActionButton = user?.isLoggedIn ?? ''
+  const checkLogin = !!showActionButton
 
-  const { todos, error, mutate } = useTodos(name)
+  const { todos, error, mutate } = useTodos()
   if (isLoading) return <div>Loading...</div>
   if (user_error) return <div>Error fetching user: {user_error.message}</div>
   if (error) return <div>Error fetching todos: {error.message}</div>
@@ -86,12 +85,6 @@ export default function Page() {
     mutate()
     user_mutate()
   }
-
-  // const incompletionTodo = async (CompleteTodoId: number) => {
-  //   await IncompleteTodo(CompleteTodoId)
-  //   mutate()
-  //   user_mutate()
-  // }
 
   const truncateContent = (content: string) => {
     if (content.length >= 13) {

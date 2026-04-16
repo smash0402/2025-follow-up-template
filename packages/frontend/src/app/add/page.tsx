@@ -16,7 +16,6 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { addTodo } from '@/lib/apis/addTodo'
 import type { AddTodoRequest, Todo } from '@shared/types'
-import { useUser } from '@/app/hooks/useUser'
 import { DatePickerInput } from '@mantine/dates'
 
 export default function Page() {
@@ -27,11 +26,6 @@ export default function Page() {
   const [public_private, setPublicPrivate] =
     useState<Todo['public_private']>('public')
   const router = useRouter()
-  const { user, user_error, isLoading } = useUser()
-  const name = user[0]?.name ?? null
-
-  if (isLoading) return <div>Loading...</div>
-  if (user_error) return <div>Error fetching user: {user_error.message}</div>
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -50,7 +44,6 @@ export default function Page() {
       title,
       content,
       priority,
-      name,
       public_private,
       deadline
     }

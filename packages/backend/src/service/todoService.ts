@@ -1,12 +1,11 @@
 import { pool } from '@/db'
 import type { RowDataPacket, ResultSetHeader } from 'mysql2'
 import type { AddTodoRequest, EditTodo, TodoState } from '@shared/types'
-import { todo } from 'node:test'
 
 export const getPublicTodo = async () => {
   try {
     const [rows] = await pool.query<RowDataPacket[]>(
-      'SELECT id, title, content, created_at, updated_at, priority, name, public_private, userid, todoState, deadline FROM todos WHERE  public_private = ? ORDER BY id ASC',
+      'SELECT todos.id, todos.title, todos.content, todos.created_at, todos.updated_at, todos.priority, userInfos.name, todos.public_private, todos.userid, todos.todoState, todos.deadline FROM todos JOIN userInfos ON todos.userid = userInfos.userid  WHERE  todos.public_private = ? ORDER BY id ASC',
       ['public']
     )
     return rows.map((row) => ({
@@ -28,11 +27,11 @@ export const getPublicTodo = async () => {
   }
 }
 
-export const getLoginUserTodo = async (name: string) => {
+export const getLoginUserTodo = async (todoId: string) => {
   try {
     const [rows] = await pool.query<RowDataPacket[]>(
-      'SELECT id, title, content, created_at, updated_at, priority, name, public_private, userid, todoState, deadline FROM todos WHERE name = ? OR public_private = ? ORDER BY id ASC',
-      [name, 'public']
+      'SELECT todos.id, todos.title, todos.content, todos.created_at, todos.updated_at, todos.priority, userInfos.name, todos.public_private, todos.userid, todos.todoState, todos.deadline FROM todos JOIN userInfos ON todos.userid = userInfos.userid WHERE todos.userid = ? OR todos.public_private = ? ORDER BY id ASC',
+      [todoId, 'public']
     )
     return rows.map((row) => ({
       id: row.id,
@@ -84,20 +83,11 @@ export const addTodo = async (
   userid: string,
   todoState: '完了' | '未完了'
 ) => {
-  const { title, content, priority, name, public_private, deadline } = data
+  const { title, content, priority, public_private, deadline } = data
   try {
     const [result] = await pool.query<ResultSetHeader>(
-      'INSERT INTO todos (title, content, created_at, updated_at, priority, name, public_private, userid, todoState,deadline) VALUES (?, ?, NOW(), NOW(), ?, ?, ?, ?, ?, ?)',
-      [
-        title,
-        content,
-        priority,
-        name,
-        public_private,
-        userid,
-        todoState,
-        deadline
-      ]
+      'INSERT INTO todos (title, content, created_at, updated_at, priority, public_private, userid, todoState,deadline) VALUES (?, ?, NOW(), NOW(), ?, ?, ?, ?, ?)',
+      [title, content, priority, public_private, userid, todoState, deadline]
     )
     return result
   } catch (error) {

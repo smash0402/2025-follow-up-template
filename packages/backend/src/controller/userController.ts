@@ -1,24 +1,10 @@
 import type { FastifyPluginAsync, FastifyInstance } from 'fastify'
 import type { login, UserInfo } from '@shared/types'
-import { getUser, addUserInfo, getUserById } from '@/service/userService'
+import { addUserInfo, getUserById } from '@/service/userService'
 
 export const userController: FastifyPluginAsync = async (
   fastify: FastifyInstance
 ) => {
-  fastify.get('/getUserInfo', async (request, reply) => {
-    try {
-      const user_id = request.session.user_id
-      if (!user_id) {
-        reply.status(200).send([])
-      }
-      const user = await getUser(String(user_id))
-      reply.status(200).send(user)
-    } catch (error) {
-      console.error('POST /user error:', error)
-      reply.status(500).send({ message: 'Failed to get user' })
-    }
-  })
-
   // ユーザー情報登録（POST）
   fastify.post<{ Body: UserInfo }>('/userInfo', async (request, reply) => {
     try {
