@@ -1,7 +1,7 @@
 import useSWR from 'swr'
 import type { Todo } from '@shared/types'
 
-export function getEditTodo(id: number): {
+export function useGetEditTodo(id: number): {
   todo: Todo | undefined
   error: Error | undefined
 } {

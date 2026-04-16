@@ -7,7 +7,7 @@ import type {
 import {
   getPublicTodos,
   getLoginUserTodos,
-  findTodoById,
+  getTodoById,
   addTodo,
   updateTodo,
   deleteTodo,
@@ -65,7 +65,7 @@ export const todoController: FastifyPluginAsync = async (
           reply.code(404).send()
           return
         }
-        const todo = await findTodoById(id)
+        const todo = await getTodoById(id)
         if (!todo) return reply.status(404).send({ message: 'Todo not found' })
         reply.status(200).send(todo)
       } catch (error) {

@@ -31,11 +31,11 @@ export const getPublicTodos = async () => {
   }
 }
 
-export const getLoginUserTodos = async (todoId: string) => {
+export const getLoginUserTodos = async (userId: string) => {
   try {
     const [rows] = await pool.query<RowDataPacket[]>(
       'SELECT todos.id, todos.title, todos.content, todos.created_at, todos.updated_at, todos.priority, user_infos.name, todos.public_private, todos.userid, todos.todoState, todos.deadline FROM todos JOIN user_infos ON todos.userid = user_infos.id WHERE todos.userid = ? OR todos.public_private = ? ORDER BY id ASC',
-      [todoId, 'public']
+      [userId, 'public']
     )
     return rows.map((row) => ({
       id: row.id,
@@ -56,7 +56,7 @@ export const getLoginUserTodos = async (todoId: string) => {
   }
 }
 
-export const findTodoById = async (id: number) => {
+export const getTodoById = async (id: number) => {
   try {
     const [rows] = await pool.query<RowDataPacket[]>(
       'SELECT id, title, content, created_at, updated_at, priority, public_private, deadline FROM todos WHERE id = ?',

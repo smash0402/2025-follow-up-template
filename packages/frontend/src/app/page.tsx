@@ -14,7 +14,7 @@ import Link from 'next/link'
 import { deleteTodo } from '@/lib/apis/deleteTodo'
 import { logout } from '@/lib/apis/logout'
 import { isCompleteTodo } from '@/lib/apis/isCompleteTodo'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { TODOSTATE, type Priority, type TodoState } from '@shared/types'
 import dayjs from 'dayjs'
 import { AiFillAlert } from 'react-icons/ai'
@@ -29,10 +29,23 @@ export default function Page() {
     priority: [],
     complete: []
   })
+
   const showActionButton = user?.userId ?? ''
   const checkLogin = !!showActionButton
 
   const { todos, error, mutate } = useTodos()
+
+  const filterPriorityTodo = useMemo(() => {
+    return todos.filter((todo) => {
+      return (
+        (filter.priority.length === 0 ||
+          filter.priority.includes(todo.priority)) &&
+        (filter.complete.length === 0 ||
+          filter.complete.includes(todo.todoState))
+      )
+    })
+  }, [todos, filter])
+
   if (isLoading) return <div>Loading...</div>
   if (user_error) return <div>Error fetching user: {user_error.message}</div>
   if (error) return <div>Error fetching todos: {error.message}</div>
@@ -57,7 +70,7 @@ export default function Page() {
     deadline: string | null,
     todoState: TodoState
   ) => {
-    const checkOverdueTask = taskDeadlineComparison(deadline)
+    const checkOverdueTask = getDaysUntilDeadline(deadline)
     if (checkOverdueTask < 0 || todoState === TODOSTATE.complete) {
       return 'rgb(193, 192, 192)'
     } else if (priority === '高') {
@@ -100,7 +113,7 @@ export default function Page() {
     return title
   }
 
-  const taskDeadlineComparison = (deadline: string | null) => {
+  const getDaysUntilDeadline = (deadline: string | null) => {
     const deadlineDay = dayjs(deadline).startOf('day')
     return deadlineDay.diff(dayjs().startOf('day'), 'day')
   }
@@ -162,115 +175,107 @@ export default function Page() {
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
-          {todos
-            .filter(
-              (todo) =>
-                (filter.priority.length === 0 ||
-                  filter.priority.includes(todo.priority)) &&
-                (filter.complete.length === 0 ||
-                  filter.complete.includes(todo.todoState))
-            )
-            .map((todo) => (
-              <Table.Tr
-                key={todo.id}
-                style={{
-                  backgroundColor: getColor(
-                    todo.priority,
-                    todo.deadline,
-                    todo.todoState
-                  )
-                }}
-              >
-                {0 <= taskDeadlineComparison(todo.deadline) &&
-                taskDeadlineComparison(todo.deadline) <= 2 &&
-                todo.todoState === TODOSTATE.incomplete ? (
-                  <Table.Td
-                    style={{
-                      width: '10px',
-                      paddingLeft: '5px',
-                      paddingRight: '0px'
-                    }}
-                  >
-                    <AiFillAlert color='red' size={'20px'} />
-                  </Table.Td>
-                ) : (
-                  <Table.Td
-                    style={{ width: '20px', paddingLeft: '5px' }}
-                  ></Table.Td>
-                )}
+          {filterPriorityTodo.map((todo) => (
+            <Table.Tr
+              key={todo.id}
+              style={{
+                backgroundColor: getColor(
+                  todo.priority,
+                  todo.deadline,
+                  todo.todoState
+                )
+              }}
+            >
+              {0 <= getDaysUntilDeadline(todo.deadline) &&
+              getDaysUntilDeadline(todo.deadline) <= 2 &&
+              todo.todoState === TODOSTATE.incomplete ? (
                 <Table.Td
                   style={{
-                    textAlign: 'center',
-                    paddingLeft: '0px',
-                    height: '51px'
+                    width: '10px',
+                    paddingLeft: '5px',
+                    paddingRight: '0px'
                   }}
                 >
-                  {todo.id}
+                  <AiFillAlert color='red' size={'20px'} />
                 </Table.Td>
-                <Table.Td>{truncateTitle(todo.title)}</Table.Td>
-                <Table.Td>{truncateContent(todo.content)}</Table.Td>
+              ) : (
+                <Table.Td
+                  style={{ width: '20px', paddingLeft: '5px' }}
+                ></Table.Td>
+              )}
+              <Table.Td
+                style={{
+                  textAlign: 'center',
+                  paddingLeft: '0px',
+                  height: '51px'
+                }}
+              >
+                {todo.id}
+              </Table.Td>
+              <Table.Td>{truncateTitle(todo.title)}</Table.Td>
+              <Table.Td>{truncateContent(todo.content)}</Table.Td>
+              <Table.Td>
+                {dayjs(todo.createdAt).format('YYYY月M日D日')}
+              </Table.Td>
+              <Table.Td>
+                {dayjs(todo.updatedAt).format('YYYY月M日D日')}
+              </Table.Td>
+              {todo.deadline ? (
                 <Table.Td>
-                  {dayjs(todo.createdAt).format('YYYY月M日D日')}
+                  {dayjs(todo.deadline).format('YYYY月M日D日')}
                 </Table.Td>
-                <Table.Td>
-                  {dayjs(todo.updatedAt).format('YYYY月M日D日')}
-                </Table.Td>
-                {todo.deadline ? (
-                  <Table.Td>
-                    {dayjs(todo.deadline).format('YYYY月M日D日')}
-                  </Table.Td>
-                ) : (
-                  <Table.Td style={{ textAlign: 'center' }}>なし</Table.Td>
-                )}
-                <Table.Td style={{ textAlign: 'center' }}>
-                  {todo.priority}
-                </Table.Td>
-                <Table.Td style={{ textAlign: 'center' }}>{todo.name}</Table.Td>
-                <Table.Td style={{ textAlign: 'center' }}>
-                  {todo.todoState}
-                </Table.Td>
-                {showActionButton === todo.userid ? (
-                  <Table.Td
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      paddingLeft: '0px'
-                    }}
-                  >
-                    {todo.todoState === TODOSTATE.incomplete ? (
-                      <Button
-                        variant='filled'
-                        onClick={() => changeTodoState(todo.id, todo.todoState)}
-                        style={{ paddingLeft: '13px', paddingRight: '13px' }}
-                      >
-                        タスク完了　
-                      </Button>
-                    ) : (
-                      <Button
-                        variant='filled'
-                        onClick={() => changeTodoState(todo.id, todo.todoState)}
-                        style={{ paddingLeft: '13px', paddingRight: '13px' }}
-                      >
-                        タスク未完了
-                      </Button>
-                    )}
-                    <Link href={`/edit?id=${todo.id}`}>
-                      <Button variant='filled'>編集</Button>
-                    </Link>
+              ) : (
+                <Table.Td style={{ textAlign: 'center' }}>なし</Table.Td>
+              )}
+              <Table.Td style={{ textAlign: 'center' }}>
+                {todo.priority}
+              </Table.Td>
+              <Table.Td style={{ textAlign: 'center' }}>{todo.name}</Table.Td>
+              <Table.Td style={{ textAlign: 'center' }}>
+                {todo.todoState}
+              </Table.Td>
+              {showActionButton === todo.userid ? (
+                <Table.Td
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    paddingLeft: '0px'
+                  }}
+                >
+                  {todo.todoState === TODOSTATE.incomplete ? (
                     <Button
                       variant='filled'
-                      onClick={() => handleDelete(todo.id)}
+                      onClick={() => changeTodoState(todo.id, todo.todoState)}
+                      style={{ paddingLeft: '13px', paddingRight: '13px' }}
                     >
-                      削除
+                      タスク完了　
                     </Button>
-                  </Table.Td>
-                ) : (
-                  <Table.Td>
-                    <Space style={{ width: '200px' }}></Space>
-                  </Table.Td>
-                )}
-              </Table.Tr>
-            ))}
+                  ) : (
+                    <Button
+                      variant='filled'
+                      onClick={() => changeTodoState(todo.id, todo.todoState)}
+                      style={{ paddingLeft: '13px', paddingRight: '13px' }}
+                    >
+                      タスク未完了
+                    </Button>
+                  )}
+                  <Link href={`/edit?id=${todo.id}`}>
+                    <Button variant='filled'>編集</Button>
+                  </Link>
+                  <Button
+                    variant='filled'
+                    onClick={() => handleDelete(todo.id)}
+                  >
+                    削除
+                  </Button>
+                </Table.Td>
+              ) : (
+                <Table.Td>
+                  <Space style={{ width: '200px' }}></Space>
+                </Table.Td>
+              )}
+            </Table.Tr>
+          ))}
         </Table.Tbody>
       </Table>
 
@@ -288,7 +293,7 @@ export default function Page() {
             ...prev,
             priority: val as filterTodo['priority']
           }))
-          mutate()
+          filterPriorityTodo
         }}
       />
 
@@ -304,7 +309,7 @@ export default function Page() {
             ...prev,
             complete: val as filterTodo['complete']
           }))
-          mutate()
+          filterPriorityTodo
         }}
       />
     </Container>

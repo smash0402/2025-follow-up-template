@@ -18,13 +18,13 @@ import { useRouter } from 'next/navigation'
 import { updateTodo } from '@/lib/apis/updateTodo'
 import type { UpdateTodoRequest, Todo } from '@shared/types'
 import { PRIORITY, PUBLICSTATUS } from '@shared/types'
-import { getEditTodo } from '@/app/hooks/getEditTodo'
+import { useGetEditTodo } from '@/app/hooks/useGetEditTodo'
 import { DatePickerInput } from '@mantine/dates'
 
 export default function Page() {
   const searchParams = useSearchParams()
   const id = Number(searchParams.get('id')) || 1
-  const { todo, error } = getEditTodo(id)
+  const { todo, error } = useGetEditTodo(id)
   const [title, setTitle] = useState<Todo['title']>('')
   const [content, setContent] = useState<Todo['content']>('')
   const [priority, setPriority] = useState<Todo['priority']>(PRIORITY.low)
