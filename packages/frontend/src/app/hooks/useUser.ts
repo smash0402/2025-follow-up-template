@@ -1,4 +1,4 @@
-import useSWR from 'swr'
+import useSWR, { type KeyedMutator } from 'swr'
 
 export type User = {
   userId: string
@@ -6,8 +6,9 @@ export type User = {
 
 export function useUser(): {
   user: User | undefined
-  user_error: Error | undefined
+  userError: Error | undefined
   isLoading: boolean
+  userMutate: KeyedMutator<User>
 } {
   const fetcher = async (url: string): Promise<User> => {
     const res = await fetch(url, {
@@ -24,9 +25,10 @@ export function useUser(): {
   const API_URL = process.env.NEXT_PUBLIC_API_URL
   const {
     data,
-    error: user_error,
-    isLoading
+    error: userError,
+    isLoading,
+    mutate: userMutate
   } = useSWR<User, Error>(`${API_URL}/auth/login`, fetcher)
 
-  return { user: data, user_error, isLoading }
+  return { user: data, userError, isLoading, userMutate }
 }

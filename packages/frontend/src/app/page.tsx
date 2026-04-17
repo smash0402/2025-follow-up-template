@@ -24,7 +24,7 @@ export default function Page() {
     priority: Priority[]
     complete: TodoState[]
   }
-  const { user, user_error, isLoading } = useUser()
+  const { user, userError, isLoading, userMutate } = useUser()
   const [filter, setFilter] = useState<filterTodo>({
     priority: [],
     complete: []
@@ -47,7 +47,7 @@ export default function Page() {
   }, [todos, filter])
 
   if (isLoading) return <div>Loading...</div>
-  if (user_error) return <div>Error fetching user: {user_error.message}</div>
+  if (userError) return <div>Error fetching user: {userError.message}</div>
   if (error) return <div>Error fetching todos: {error.message}</div>
 
   const handleDelete = async (id: number) => {
@@ -62,7 +62,7 @@ export default function Page() {
     const ok = confirm(`ログアウトしますか？`)
     if (!ok) return
     await logout()
-    mutate()
+    userMutate()
   }
 
   const getColor = (
